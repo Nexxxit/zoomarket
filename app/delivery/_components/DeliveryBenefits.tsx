@@ -14,19 +14,19 @@ export default function DeliveryBenefits() {
 
       <ul className="space-y-4 text-xs text-stone-700 font-inter">
         <li className="flex gap-3">
-          <span className="text-base">🚀</span>
+          <span className="text-base" aria-hidden="true">🚀</span>
           <div>
             <strong>Бесплатно от {formatPrice(FREE_SHIPPING_THRESHOLD)}:</strong> При меньшей стоимости заказа доставка по городу составит фиксированные {formatPrice(DELIVERY_COST)}.
           </div>
         </li>
         <li className="flex gap-3">
-          <span className="text-base">🕒</span>
+          <span className="text-base" aria-hidden="true">🕒</span>
           <div>
             <strong>Экспресс доставка:</strong> Для рецептурных лекарств и экстренных аксессуаров за 1 час! Действует курьерский сбор.
           </div>
         </li>
         <li className="flex gap-3">
-          <span className="text-base">🦴</span>
+          <span className="text-base" aria-hidden="true">🦴</span>
           <div>
             <strong>Подарок-сюрприз:</strong> В каждую доставку мы упаковываем вкусный экологический комплимент от Айболита.
           </div>

@@ -37,6 +37,7 @@ export default function Navbar({ mobileMenuOpen = false, onCloseMenu }: NavbarPr
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
                   data-active-nav={isActive ? "true" : "false"}
                   className={`inline-flex items-center gap-2 whitespace-nowrap px-3.5 py-1.5 rounded-full transition-all text-xs sm:text-sm cursor-pointer ${
                     isActive 

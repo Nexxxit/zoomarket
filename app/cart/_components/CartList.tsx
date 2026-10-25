@@ -112,7 +112,7 @@ export default function CartList({ cart, checkoutType, itemsSubtotal, pickupAddr
 
       {checkoutType === 'delivery' ? (
         <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex items-center gap-3">
-          <span className="text-xl">🛵</span>
+          <span className="text-xl" aria-hidden="true">🛵</span>
           <div className="text-xs text-stone-600 font-inter space-y-0.5">
             {itemsSubtotal >= FREE_SHIPPING_THRESHOLD ? (
               <p className="font-bold text-orange-950">Поздравляем! Доставка будет бесплатной!</p>
@@ -124,7 +124,7 @@ export default function CartList({ cart, checkoutType, itemsSubtotal, pickupAddr
         </div>
       ) : (
         <div className="p-4 bg-green-50 rounded-2xl border border-green-100 flex items-center gap-3">
-          <span className="text-xl">🏪</span>
+          <span className="text-xl" aria-hidden="true">🏪</span>
           <div className="text-xs text-stone-600 font-inter space-y-0.5">
             <p className="font-bold text-green-950">Самовывоз — Бесплатно в любое время!</p>
             <p className="text-stone-700">Пункт выдачи: <strong className="text-stone-950">{pickupAddress}</strong></p>

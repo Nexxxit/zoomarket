@@ -53,6 +53,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <button
+        type="button"
+        aria-label={liked ? `Убрать ${product.name} из избранного` : `Добавить ${product.name} в избранное`}
         className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-sm backdrop-blur-xs transition-colors cursor-pointer ${
           liked ? 'bg-red-50 text-red-500' : 'bg-white/80 hover:bg-white text-stone-400 hover:text-red-500'
         }`}
@@ -97,6 +99,8 @@ export default function ProductCard({ product }: ProductCardProps) {
                 return (
                   <button
                     key={size}
+                    type="button"
+                    aria-pressed={isActive}
                     className={`text-[10px] font-bold font-inter px-2 py-1 rounded-md transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-stone-900 border-stone-900 text-white shadow-xs'
@@ -135,6 +139,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="flex items-center justify-between w-full bg-stone-100 p-1 rounded-full border border-stone-200/60 h-[44px]">
               <motion.button
                 whileTap={{ scale: 0.9 }}
+                type="button"
+                aria-label="Уменьшить количество"
                 className="w-9 h-9 rounded-full bg-white hover:bg-orange-50 hover:text-orange-500 border border-stone-200/50 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer"
               >
                 <Minus className="w-3.5 h-3.5" />
@@ -144,6 +150,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
               <motion.button
                 whileTap={{ scale: 0.9 }}
+                type="button"
+                aria-label="Увеличить количество"
                 className="w-9 h-9 rounded-full bg-white hover:bg-orange-50 hover:text-orange-500 border border-stone-200/50 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -154,6 +162,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               whileTap={{ scale: 0.96 }}
               type="button"
               onClick={() => showToast(product)}
+              aria-label={`Добавить ${product.name} в корзину`}
               className="w-full bg-[#1C1917] hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors text-xs sm:text-sm h-[44px]"
             >
               <ShoppingCart className="w-4 h-4 transition-transform group-hover/btn:-translate-y-0.5" />

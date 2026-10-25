@@ -111,6 +111,7 @@ export default function Header() {
                 </div>
                 <input
                   type="text"
+                  aria-label="Поиск по каталогу"
                   value={search.query}
                   onChange={(e) => search.setQuery(e.target.value)}
                   onFocus={search.open}
@@ -190,7 +191,7 @@ export default function Header() {
                     </div>
                   ) : (
                     <div className="p-6 text-center space-y-1">
-                      <span className="text-2xl">😿</span>
+                      <span className="text-2xl" aria-hidden="true">😿</span>
                       <p className="text-xs font-bold text-stone-800 font-comfortaa">Ничего не найдено</p>
                     </div>
                   )}
@@ -237,6 +238,7 @@ export default function Header() {
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => setAuthOpen(true)}
+                aria-label="Личный кабинет"
                 className={
                   user
                     ? 'w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-sm border border-orange-200 cursor-pointer shrink-0 p-0'
