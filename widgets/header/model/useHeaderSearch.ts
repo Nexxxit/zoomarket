@@ -18,7 +18,7 @@ export interface HeaderSearchState {
 }
 
 export function useHeaderSearch(): HeaderSearchState {
-  const [query, setQuery] = useState('');
+  const [query, setQueryValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
   const allResults = useMemo(() => {
@@ -41,10 +41,15 @@ export function useHeaderSearch(): HeaderSearchState {
 
   const isOpen = isFocused && query.trim().length > 0;
 
+  const setQuery = useCallback((value: string) => {
+    setQueryValue(value);
+    setIsFocused(true);
+  }, []);
+
   const open = useCallback(() => setIsFocused(true), []);
   const close = useCallback(() => setIsFocused(false), []);
   const reset = useCallback(() => {
-    setQuery('');
+    setQueryValue('');
     setIsFocused(false);
   }, []);
 

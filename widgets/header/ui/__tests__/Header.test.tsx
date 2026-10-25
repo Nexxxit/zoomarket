@@ -1,0 +1,56 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Header from '../Header';
+import { MOCK_PRODUCTS } from '@/entities/product';
+
+vi.mock('next/image', async () => {
+  const { createElement } = await vi.importActual<typeof import('react')>('react');
+  return {
+    default: (props: Record<string, unknown>) => createElement('img', props),
+  };
+});
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/catalog',
+}));
+
+describe('Header interactivity', () => {
+  it('hamburger toggles the navbar mobile menu', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+
+    expect(screen.queryByText('Весь каталог')).toBeNull();
+    const menuButton = screen.getByRole('button', { name: 'Меню каталога' });
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(menuButton);
+    expect(await screen.findByText('Весь каталог')).toBeInTheDocument();
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('profile button opens AuthDrawer', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+
+    expect(screen.queryByText('Вход в Айболит')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Личный кабинет' }));
+    expect(await screen.findByText('Вход в Айболит')).toBeInTheDocument();
+  });
+
+  it('search dropdown shows results, closes on Escape, handles no-match', async () => {
+    const user = userEvent.setup();
+    render(<Header />);
+    const input = screen.getByRole('textbox', { name: 'Поиск по каталогу' });
+
+    await user.type(input, 'ownat');
+    expect(await screen.findByText(/Найдено товаров: \d+/)).toBeInTheDocument();
+    expect(screen.getByText(MOCK_PRODUCTS[0].name)).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByText(/Найдено товаров/)).toBeNull();
+
+    await user.type(input, 'zzz9999неттакого');
+    expect(await screen.findByText('Ничего не найдено')).toBeInTheDocument();
+  });
+});
