@@ -4,3 +4,4 @@ export {
   encodeCatalogSlugSegment,
   getAllCategoryPillLabel,
 } from './catalog-slug';
+export { formatPrice } from './format';

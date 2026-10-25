@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from 'motion/react';
 
 import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
-import { INITIAL_CART_ITEMS, DEMO_CHECKOUT_TYPE, DEMO_PICKUP_ADDRESS } from '@/entities/cart';
+import { INITIAL_CART_ITEMS, DEMO_CHECKOUT_TYPE, DEMO_PICKUP_ADDRESS, selectSubtotal } from '@/entities/cart';
 import type { CartItem, } from '@/entities/cart';
-import type { UserProfile } from '@/entities/user';
+import { DEMO_USER } from '@/entities/user';
+import { FREE_SHIPPING_THRESHOLD, DELIVERY_COST } from '@/shared/config/commerce';
 import CheckoutForm from './_components/CheckoutForm';
 import OrderSuccess from './_components/OrderSuccess';
 
@@ -17,7 +18,7 @@ export default function CheckoutPage() {
   const cart = INITIAL_CART_ITEMS;
   const checkoutType = DEMO_CHECKOUT_TYPE;
   const pickupAddress = DEMO_PICKUP_ADDRESS;
-  const user = null as UserProfile | null;
+  const user = DEMO_USER;
 
   const orderPlaced = false;
 
@@ -36,8 +37,8 @@ export default function CheckoutPage() {
   const orderTime = '';
   const orderTotal = 0;
 
-  const itemsSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryCost = checkoutType === 'delivery' ? (itemsSubtotal >= 1500 ? 0 : 290) : 0;
+  const itemsSubtotal = selectSubtotal(cart);
+  const deliveryCost = checkoutType === 'delivery' ? (itemsSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DELIVERY_COST) : 0;
   const grandTotal = itemsSubtotal + deliveryCost;
 
   return (

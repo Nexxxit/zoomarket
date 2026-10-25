@@ -8,17 +8,18 @@ import {
 } from 'lucide-react';
 
 import { motion } from 'motion/react';
-import { INITIAL_CART_ITEMS } from '@/entities/cart';
-import type { UserProfile } from '@/entities/user';
+import { INITIAL_CART_ITEMS, selectCartCount } from '@/entities/cart';
+import { DEMO_USER } from '@/entities/user';
 import type { Product } from '@/entities/product';
-import { encodeCatalogSlugSegment } from '@/shared/lib/catalog-slug';
+import { productHref } from '@/shared/config/navigation';
+import { formatPrice } from '@/shared/lib/format';
 import { CONTACT_PHONE, CONTACT_PHONE_HREF, WORK_HOURS, TOP_BAR_LINKS } from '@/shared/config/site';
 import { Navbar } from '@/widgets/navbar';
 
 export default function Header() {
   const pathname = usePathname();
 
-  const cartCount = INITIAL_CART_ITEMS.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = selectCartCount(INITIAL_CART_ITEMS);
 
   const allSearchResults: Product[] = [];
 
@@ -27,7 +28,7 @@ export default function Header() {
   const searchQuery = '';
   const showDropdown = false;
   const mobileMenuOpen = false;
-  const user = null as UserProfile | null;
+  const user = DEMO_USER;
   return (
     <>
       {showDropdown && searchQuery.trim() && (
@@ -137,7 +138,7 @@ export default function Header() {
                       {searchResults.map((product) => (
                         <Link
                           key={product.id}
-                          href={`/catalog/${product.animal}/${product.subcategoryId}/${encodeCatalogSlugSegment(product.subSection || 'all')}/${product.id}`}
+                          href={productHref(product)}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-orange-50/40 transition-colors group cursor-pointer"
                         >
                           <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform border border-stone-100 bg-stone-50 overflow-hidden p-1">
@@ -165,7 +166,7 @@ export default function Header() {
                           </div>
                           <div className="text-right flex-shrink-0">
                             <span className="text-xs font-black text-orange-600 font-mono">
-                              {product.price} ₽
+                              {formatPrice(product.price)}
                             </span>
                           </div>
                         </Link>

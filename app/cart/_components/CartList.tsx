@@ -6,13 +6,15 @@ import { Trash2, Plus, Minus } from 'lucide-react';
 import { ProductIcon } from '@/shared/ui';
 import { MOCK_PRODUCTS } from '@/entities/product';
 import type { CartItem } from '@/entities/cart';
-import { encodeCatalogSlugSegment } from '@/shared/lib';
+import { productHref } from '@/shared/config/navigation';
+import { formatPrice } from '@/shared/lib/format';
+import { FREE_SHIPPING_THRESHOLD } from '@/shared/config/commerce';
 
 function getCartItemDetailUrl(itemId: string): string | null {
   const product = MOCK_PRODUCTS.find((p) => p.id === itemId);
   if (!product?.animal || !product?.subcategoryId) return null;
 
-  return `/catalog/${product.animal}/${product.subcategoryId}/${encodeCatalogSlugSegment(product.subSection || 'all')}/${product.id}`;
+  return productHref(product);
 }
 
 interface CartListProps {
@@ -86,11 +88,11 @@ export default function CartList({ cart, checkoutType, itemsSubtotal, pickupAddr
 
               <div className="text-right space-y-1 flex-shrink-0 min-w-24">
                 <p className="text-base sm:text-lg font-extrabold text-stone-900 font-comfortaa">
-                  {item.price * item.quantity} ₽
+                  {formatPrice(item.price * item.quantity)}
                 </p>
                 {item.oldPrice && (
                   <p className="text-xs text-stone-400 line-through font-inter">
-                    {item.oldPrice * item.quantity} ₽
+                    {formatPrice(item.oldPrice * item.quantity)}
                   </p>
                 )}
               </div>
@@ -112,10 +114,10 @@ export default function CartList({ cart, checkoutType, itemsSubtotal, pickupAddr
         <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex items-center gap-3">
           <span className="text-xl">🛵</span>
           <div className="text-xs text-stone-600 font-inter space-y-0.5">
-            {itemsSubtotal >= 1500 ? (
+            {itemsSubtotal >= FREE_SHIPPING_THRESHOLD ? (
               <p className="font-bold text-orange-950">Поздравляем! Доставка будет бесплатной!</p>
             ) : (
-              <p> Добавьте еще товаров на <strong className="text-orange-950">{1500 - itemsSubtotal} ₽</strong> для бесплатной доставки по городу.</p>
+              <p> Добавьте еще товаров на <strong className="text-orange-950">{formatPrice(FREE_SHIPPING_THRESHOLD - itemsSubtotal)}</strong> для бесплатной доставки по городу.</p>
             )}
             <p className="text-stone-400 font-light">Доставка Айболита работает с заботой во все районы.</p>
           </div>

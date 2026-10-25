@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
+import { FREE_SHIPPING_THRESHOLD, DELIVERY_COST } from '@/shared/config/commerce';
+import { formatPrice } from '@/shared/lib/format';
 
 export default function DeliveryTermsBlock() {
   return (
@@ -18,7 +20,7 @@ export default function DeliveryTermsBlock() {
         <li className="flex gap-3">
           <span className="text-base">🚀</span>
           <div>
-            <strong>Бесплатно от 1500 ₽:</strong> При меньшей стоимости заказа доставка по городу составит фиксированные 290 ₽.
+            <strong>Бесплатно от {formatPrice(FREE_SHIPPING_THRESHOLD)}:</strong> При меньшей стоимости заказа доставка по городу составит фиксированные {formatPrice(DELIVERY_COST)}.
           </div>
         </li>
         <li className="flex gap-3">

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Product } from '@/entities/product';
+import { formatPrice } from '@/shared/lib/format';
 import { StarRating } from '@/features/rating';
 import RecentlyViewed from './RecentlyViewed';
 
@@ -140,11 +141,11 @@ export default function ProductDetailView({
               <div className="bg-stone-50 border border-stone-100 rounded-3xl p-5 space-y-4">
                 <div className="flex items-baseline gap-3">
                   <span className="text-2xl sm:text-3xl font-black text-orange-500 font-comfortaa">
-                    {activeProduct.price} ₽
+                    {formatPrice(activeProduct.price)}
                   </span>
                   {activeProduct.onSale && activeProduct.oldPrice && (
                     <span className="text-sm sm:text-base text-stone-400 line-through font-inter">
-                      {activeProduct.oldPrice} ₽
+                      {formatPrice(activeProduct.oldPrice)}
                     </span>
                   )}
                 </div>

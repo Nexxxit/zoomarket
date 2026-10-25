@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Star, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
-import { encodeCatalogSlugSegment } from '@/shared/lib/catalog-slug';
+import { productHref } from '@/shared/config/navigation';
+import { formatPrice } from '@/shared/lib/format';
 import { ProductIcon } from '@/shared/ui';
 import { INITIAL_CART_ITEMS } from '@/entities/cart';
 import type { Product } from '../model/types';
@@ -27,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const pathname = usePathname();
   const isFromAll = pathname ? (pathname.endsWith(`/${product.subcategoryId}`) || pathname.endsWith(`/${product.subcategoryId}/all`)) : false;
 
-  const detailUrl = `/catalog/${product.animal}/${product.subcategoryId}/${encodeCatalogSlugSegment(product.subSection || 'all')}/${product.id}${isFromAll ? '?from=all' : ''}`;
+  const detailUrl = `${productHref(product)}${isFromAll ? '?from=all' : ''}`;
 
   return (
     <div
@@ -112,11 +113,11 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           <div className="flex items-baseline gap-2">
             <span className="text-xl md:text-2xl font-black text-orange-500 font-comfortaa">
-              {product.price} ₽
+              {formatPrice(product.price)}
             </span>
             {product.onSale && product.oldPrice && (
               <span className="text-xs md:text-sm text-stone-400 line-through font-inter">
-                {product.oldPrice} ₽
+                {formatPrice(product.oldPrice)}
               </span>
             )}
           </div>

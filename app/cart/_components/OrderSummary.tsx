@@ -4,6 +4,7 @@ import React from 'react';
 import { CreditCard, Truck, Store, ShieldCheck } from 'lucide-react';
 import CartRecommendations from './CartRecommendations';
 import type { CartItem } from '@/entities/cart';
+import { formatPrice } from '@/shared/lib/format';
 
 interface OrderSummaryProps {
   cart: CartItem[];
@@ -68,19 +69,19 @@ export default function OrderSummary({
       <div className="space-y-4 text-sm font-inter text-stone-700">
         <div className="flex justify-between">
           <span className="text-stone-500">Подитог ({cart.length} тов.):</span>
-          <span className="font-semibold text-stone-900">{itemsSubtotal} ₽</span>
+          <span className="font-semibold text-stone-900">{formatPrice(itemsSubtotal)}</span>
         </div>
         {totalSavings > 0 && (
           <div className="flex justify-between text-orange-650">
             <span>Экономия по акциям:</span>
-            <span className="font-semibold">–{totalSavings} ₽</span>
+            <span className="font-semibold">–{formatPrice(totalSavings)}</span>
           </div>
         )}
         <div className="flex justify-between">
           <span className="text-stone-500">Получение заказа:</span>
           <span className="font-semibold text-stone-900">
             {checkoutType === 'delivery'
-              ? (deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost} ₽`)
+              ? (deliveryCost === 0 ? 'Бесплатно' : formatPrice(deliveryCost))
               : 'Самовывоз (Бесплатно)'}
           </span>
         </div>
@@ -112,10 +113,10 @@ export default function OrderSummary({
           <div className="flex items-center gap-2">
             {promoDiscount > 0 && (
               <span className="text-sm text-stone-400 line-through font-comfortaa">
-                {itemsSubtotal + deliveryCost} ₽
+                {formatPrice(itemsSubtotal + deliveryCost)}
               </span>
             )}
-            <span className="text-2xl font-black text-orange-500 font-comfortaa">{grandTotal} ₽</span>
+            <span className="text-2xl font-black text-orange-500 font-comfortaa">{formatPrice(grandTotal)}</span>
           </div>
         </div>
       </div>

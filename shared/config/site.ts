@@ -1,4 +1,5 @@
 import { Package, Store, Truck, Trophy, type LucideIcon } from 'lucide-react';
+import { FREE_SHIPPING_THRESHOLD, LOYALTY_BONUS_PCT } from './commerce';
 
 export const SITE_NAME = 'Айболит';
 export const SITE_TAGLINE = 'Заботливый зоомаркет';
@@ -19,9 +20,9 @@ export const TOP_BAR_LINKS = [
 ];
 
 export const HOME_FEATURES: { id: string; icon: LucideIcon; lines: [string, string?] }[] = [
-  { id: 'same-day', icon: Truck, lines: ['Доставка день в день!', 'Бесплатно от 1000 ₽'] },
+  { id: 'same-day', icon: Truck, lines: ['Доставка день в день!', `Бесплатно от ${FREE_SHIPPING_THRESHOLD} ₽`] },
   { id: 'pickup', icon: Store, lines: ['Самовывоз из', 'магазинов'] },
-  { id: 'loyalty', icon: Trophy, lines: ['10% на повторный', 'заказ'] },
+  { id: 'loyalty', icon: Trophy, lines: [`${LOYALTY_BONUS_PCT}% на повторный`, 'заказ'] },
   { id: 'russia', icon: Package, lines: ['Доставка по', 'России'] },
 ];
 

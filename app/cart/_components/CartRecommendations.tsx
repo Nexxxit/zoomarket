@@ -6,6 +6,7 @@ import { ProductIcon } from '@/shared/ui';
 import { MOCK_PRODUCTS } from '@/entities/product';
 import type { Product } from '@/entities/product';
 import type { CartItem } from '@/entities/cart';
+import { formatPrice } from '@/shared/lib/format';
 
 function getRecommendationScore(product: Product): number {
   let score = product.rating * 10;
@@ -60,7 +61,7 @@ export default function CartRecommendations({ cart }: CartRecommendationsProps) 
                 {product.name}
               </p>
               <p className="mt-0.5 font-comfortaa text-sm font-black text-orange-500">
-                {product.price} ₽
+                {formatPrice(product.price)}
               </p>
             </div>
             <button

@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Header } from '@/widgets/header';
 import { Footer } from '@/widgets/footer';
 import { LottiePlayer } from '@/shared/ui';
-import { INITIAL_CART_ITEMS, DEMO_CHECKOUT_TYPE, DEMO_PICKUP_ADDRESS } from '@/entities/cart';
+import { INITIAL_CART_ITEMS, DEMO_CHECKOUT_TYPE, DEMO_PICKUP_ADDRESS, selectSubtotal, selectOldSubtotal } from '@/entities/cart';
+import { FREE_SHIPPING_THRESHOLD, DELIVERY_COST } from '@/shared/config/commerce';
 import CartList from './_components/CartList';
 import OrderSummary from './_components/OrderSummary';
 import DeliveryTermsBlock from './_components/DeliveryTermsBlock';
@@ -22,11 +23,11 @@ export default function CartPage() {
   const promoError: string | null = null;
   const promoSuccess: string | null = null;
 
-  const itemsSubtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const itemsOldSubtotal = cart.reduce((sum, item) => sum + ((item.oldPrice || item.price) * item.quantity), 0);
+  const itemsSubtotal = selectSubtotal(cart);
+  const itemsOldSubtotal = selectOldSubtotal(cart);
   const totalSavings = itemsOldSubtotal - itemsSubtotal;
 
-  const deliveryCost = checkoutType === 'delivery' ? (itemsSubtotal >= 1500 ? 0 : 290) : 0;
+  const deliveryCost = checkoutType === 'delivery' ? (itemsSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DELIVERY_COST) : 0;
   const grandTotal = Math.max(0, itemsSubtotal - promoDiscount + deliveryCost);
 
   return (
