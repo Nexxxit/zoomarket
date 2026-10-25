@@ -9,9 +9,11 @@ interface AuthDrawerProps {
   open?: boolean;
 
   user?: UserProfile | null;
+
+  onClose?: () => void;
 }
 
-export default function AuthDrawer({ open = false, user = null }: AuthDrawerProps) {
+export default function AuthDrawer({ open = false, user = null, onClose }: AuthDrawerProps) {
   const error = '';
   const isEditingAddress = false;
 
@@ -24,6 +26,7 @@ export default function AuthDrawer({ open = false, user = null }: AuthDrawerProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={onClose}
             className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-sm"
           />
 
@@ -43,6 +46,8 @@ export default function AuthDrawer({ open = false, user = null }: AuthDrawerProp
                 </span>
               </div>
               <button
+                type="button"
+                onClick={onClose}
                 className="p-1.5 rounded-full hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-all cursor-pointer"
               >
                 <X className="w-5.5 h-5.5" />

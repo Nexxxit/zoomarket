@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Check, X, Plus, ShoppingCart } from 'lucide-react';
 import type { Product } from '@/entities/product';
 import { ProductIcon } from '@/shared/ui';
+import { formatPrice } from '@/shared/lib/format';
 
 export interface CartToastData {
   product: Product;
@@ -14,9 +15,10 @@ export interface CartToastData {
 
 interface CartToastProps {
   data?: CartToastData | null;
+  onClose?: () => void;
 }
 
-export default function CartToast({ data = null }: CartToastProps) {
+export default function CartToast({ data = null, onClose }: CartToastProps) {
   const toastData = data;
 
   return (
@@ -54,6 +56,7 @@ export default function CartToast({ data = null }: CartToastProps) {
                 </div>
                 <button
                   type="button"
+                  onClick={onClose}
                   className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700 cursor-pointer"
                   aria-label="Закрыть уведомление"
                 >
@@ -87,7 +90,7 @@ export default function CartToast({ data = null }: CartToastProps) {
                           {toastData.recommendation.name}
                         </p>
                         <p className="mt-1 font-comfortaa text-sm font-black text-orange-500">
-                          {toastData.recommendation.price} ₽
+                          {formatPrice(toastData.recommendation.price)}
                         </p>
                       </div>
                       <motion.button

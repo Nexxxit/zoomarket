@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -10,33 +11,32 @@ import {
 import { motion } from 'motion/react';
 import { INITIAL_CART_ITEMS, selectCartCount } from '@/entities/cart';
 import { DEMO_USER } from '@/entities/user';
-import type { Product } from '@/entities/product';
 import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
 import { CONTACT_PHONE, CONTACT_PHONE_HREF, WORK_HOURS, TOP_BAR_LINKS } from '@/shared/config/site';
 import { Navbar } from '@/widgets/navbar';
+import { AuthDrawer } from '@/features/auth';
+import { useHeaderSearch } from '../model/useHeaderSearch';
 
 export default function Header() {
   const pathname = usePathname();
 
   const cartCount = selectCartCount(INITIAL_CART_ITEMS);
 
-  const allSearchResults: Product[] = [];
-
-  const searchResults = allSearchResults.slice(0, 5);
-
-  const searchQuery = '';
-  const showDropdown = false;
-  const mobileMenuOpen = false;
+  const search = useHeaderSearch();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
   const user = DEMO_USER;
   return (
     <>
-      {showDropdown && searchQuery.trim() && (
-        <div 
-          className="fixed inset-0 z-40 bg-transparent" 
+      {search.isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-transparent"
+          onMouseDown={search.close}
         />
       )}
-      
+
       <div className="bg-stone-900 text-stone-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 h-10 text-xs font-inter">
@@ -84,14 +84,14 @@ export default function Header() {
         <div className="transition-colors duration-300 backdrop-blur-md border-b border-stone-200/30 bg-transparent hover:bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3 md:gap-4">
-            
+
             <Link href="/catalog" className="flex-shrink-0 flex items-center gap-2 group">
-              <Image 
-                src="/logo_aibolit.jpg" 
-                alt="Айболит" 
-                width={52} 
-                height={52} 
-                className="w-10 h-10 md:w-11 md:h-11 object-cover rounded-full group-hover:scale-105 transition-transform" 
+              <Image
+                src="/logo_aibolit.jpg"
+                alt="Айболит"
+                width={52}
+                height={52}
+                className="w-10 h-10 md:w-11 md:h-11 object-cover rounded-full group-hover:scale-105 transition-transform"
                 referrerPolicy="no-referrer"
               />
               <div className="flex flex-col select-none text-left">
@@ -111,12 +111,19 @@ export default function Header() {
                 </div>
                 <input
                   type="text"
+                  value={search.query}
+                  onChange={(e) => search.setQuery(e.target.value)}
+                  onFocus={search.open}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') search.close();
+                  }}
                   placeholder="Поиск по товарам, брендам, категориям..."
                   className="w-full pl-11 pr-10 py-2.5 md:py-3 bg-white/90 hover:bg-white border border-stone-200/80 text-stone-900 rounded-full text-xs md:text-sm font-inter focus:outline-none focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 shadow-2xs transition-all placeholder:text-stone-400 font-medium"
                 />
-                {searchQuery && (
+                {search.query && (
                   <button
                     type="button"
+                    onClick={search.reset}
                     className="absolute right-4 text-stone-400 hover:text-stone-600 bg-transparent border-none p-0 cursor-pointer flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
@@ -124,21 +131,22 @@ export default function Header() {
                 )}
               </form>
 
-              {showDropdown && searchQuery.trim() && (
+              {search.isOpen && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-stone-200/80 overflow-hidden z-50 text-left font-inter"
                 >
-                  {searchResults.length > 0 ? (
+                  {search.results.length > 0 ? (
                     <div className="p-2 space-y-1">
                       <div className="px-3 py-2 text-[10px] font-extrabold text-stone-500 uppercase tracking-wider font-comfortaa bg-stone-50/80 rounded-xl border border-stone-100/50 flex items-center justify-between">
-                        <span>Найдено товаров: {allSearchResults.length}</span>
+                        <span>Найдено товаров: {search.total}</span>
                       </div>
-                      {searchResults.map((product) => (
+                      {search.results.map((product) => (
                         <Link
                           key={product.id}
                           href={productHref(product)}
+                          onClick={search.close}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-orange-50/40 transition-colors group cursor-pointer"
                         >
                           <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform border border-stone-100 bg-stone-50 overflow-hidden p-1">
@@ -192,7 +200,7 @@ export default function Header() {
 
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <Link href="/favorites" className="relative block">
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   className={`p-2.5 rounded-full transition-colors relative bg-white/70 backdrop-blur-sm border border-stone-200/60 shadow-2xs ${
@@ -207,7 +215,7 @@ export default function Header() {
               </Link>
 
               <Link href="/cart" className="relative block">
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   className={`p-2.5 rounded-full text-white transition-colors relative shadow-2xs ${
@@ -227,6 +235,8 @@ export default function Header() {
               <motion.button
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={() => setAuthOpen(true)}
                 className={
                   user
                     ? 'w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-sm border border-orange-200 cursor-pointer shrink-0 p-0'
@@ -237,7 +247,11 @@ export default function Header() {
                 {user ? user.avatar : <User className="w-5 h-5 stroke-[1.8]" />}
               </motion.button>
 
-              <button 
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                aria-expanded={mobileMenuOpen}
+                aria-label="Меню каталога"
                 className="p-2.5 md:hidden rounded-full text-stone-600 bg-white/80 border border-stone-200/60 hover:bg-stone-100 transition-colors cursor-pointer"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -247,10 +261,12 @@ export default function Header() {
           </div>
         </div>
 
-          <Navbar />
+          <Navbar mobileMenuOpen={mobileMenuOpen} onCloseMenu={closeMobileMenu} />
         </div>
 
       </header>
+
+      <AuthDrawer open={authOpen} user={user} onClose={() => setAuthOpen(false)} />
     </>
   );
 }

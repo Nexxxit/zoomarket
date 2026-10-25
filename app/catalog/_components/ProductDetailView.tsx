@@ -9,6 +9,7 @@ import {
 import { motion } from 'motion/react';
 import type { Product } from '@/entities/product';
 import { formatPrice } from '@/shared/lib/format';
+import { useCartToast } from '@/features/cart';
 import { StarRating } from '@/features/rating';
 import RecentlyViewed from './RecentlyViewed';
 
@@ -41,6 +42,7 @@ export default function ProductDetailView({
   showRatingSuccess = false,
   recentlyViewedProducts,
 }: ProductDetailViewProps) {
+  const { showToast } = useCartToast();
   return (
 
     <main className="flex-grow max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-10">
@@ -176,6 +178,8 @@ export default function ProductDetailView({
                     </button>
                   ) : (
                     <button
+                      type="button"
+                      onClick={() => showToast(activeProduct)}
                       className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold font-comfortaa py-3.5 px-6 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-sm cursor-pointer border-0 outline-none h-[52px]"
                     >
                       <ShoppingCart className="w-4 h-4" />

@@ -1,15 +1,23 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { categoryNavItems } from '../model/navItems';
 
-export default function Navbar() {
+interface NavbarProps {
+  mobileMenuOpen?: boolean;
+  onCloseMenu?: () => void;
+}
+
+export default function Navbar({ mobileMenuOpen = false, onCloseMenu }: NavbarProps) {
   const pathname = usePathname();
 
-  const mobileMenuOpen = false;
+  useEffect(() => {
+    onCloseMenu?.();
+  }, [pathname, onCloseMenu]);
 
   return (
     <>

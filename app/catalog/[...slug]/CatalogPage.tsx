@@ -25,7 +25,8 @@ import {
 } from '@/features/catalog';
 import type { FilterCriteria } from '@/features/catalog';
 import HeroCarousel from '../_components/HeroCarousel';
-import PromoSectionDisabled from '../_components/PromoSectionDisabled';
+// TODO(интерактив): вернуть после подключения реальных промо-данных —
+// import PromoSectionDisabled from '../_components/PromoSectionDisabled';
 import { CatalogBreadcrumbs } from '../_components/Breadcrumbs';
 import FiltersSidebar from '../_components/FiltersSidebar';
 import SubcategoryPills from '../_components/SubcategoryPills';
@@ -182,7 +183,7 @@ function CatalogPageContent({ params }: CatalogProps) {
         </section>
       )}
 
-      {false && <PromoSectionDisabled slugLength={slug.length} isSearchActive={isSearchActive} />}
+      {/* TODO(интерактив): {false && <PromoSectionDisabled slugLength={slug.length} isSearchActive={isSearchActive} />} */}
 
       {slug.length === 0 && !isSearchActive ? (
         <section id="large-catalog" className="pt-2 sm:pt-4 pb-10 sm:pb-14 space-y-8">

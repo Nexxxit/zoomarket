@@ -8,6 +8,7 @@ import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
 import { ProductIcon } from '@/shared/ui';
 import { INITIAL_CART_ITEMS } from '@/entities/cart';
+import { useCartToast } from '@/features/cart';
 import type { Product } from '../model/types';
 import { DEMO_FAVORITE_IDS } from '../model/mock';
 
@@ -18,6 +19,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { showToast } = useCartToast();
   const cart = INITIAL_CART_ITEMS;
   const liked = DEMO_FAVORITE_IDS.includes(product.id);
   const selectedSize = product.sizes?.[2] || product.sizes?.[0] || '';
@@ -150,6 +152,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           ) : (
             <motion.button
               whileTap={{ scale: 0.96 }}
+              type="button"
+              onClick={() => showToast(product)}
               className="w-full bg-[#1C1917] hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors text-xs sm:text-sm h-[44px]"
             >
               <ShoppingCart className="w-4 h-4 transition-transform group-hover/btn:-translate-y-0.5" />
