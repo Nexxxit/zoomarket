@@ -1,51 +1,85 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-import { Header } from '@/widgets/header';
-import { Footer } from '@/widgets/footer';
-import { INITIAL_CART_ITEMS, DEMO_CHECKOUT_TYPE, DEMO_PICKUP_ADDRESS, selectSubtotal } from '@/entities/cart';
-import type { CartItem, } from '@/entities/cart';
-import { DEMO_USER } from '@/entities/user';
-import { FREE_SHIPPING_THRESHOLD, DELIVERY_COST } from '@/shared/config/commerce';
-import CheckoutForm from './_components/CheckoutForm';
+import {
+  selectSubtotal,
+  selectDeliveryCost,
+  selectPromoDiscount,
+  selectGrandTotal,
+} from '@/entities/cart';
+import type { CartItem } from '@/entities/cart';
+import type { UserAddress } from '@/entities/user';
+import { useCart } from '@/features/cart';
+import { useAuth } from '@/features/auth';
+import { OrderForm } from '@/features/order-form';
+import type { OrderFormSubmission } from '@/features/order-form';
 import OrderSuccess from './_components/OrderSuccess';
 
 export default function CheckoutPage() {
-  const cart = INITIAL_CART_ITEMS;
-  const checkoutType = DEMO_CHECKOUT_TYPE;
-  const pickupAddress = DEMO_PICKUP_ADDRESS;
-  const user = DEMO_USER;
+  const router = useRouter();
+  const { cart, checkoutType, pickupAddress, setPickupAddress, clearCart, clearPromo, promoCode } = useCart();
+  const { user, updateAddress } = useAuth();
 
-  const orderPlaced = false;
+  const [submittedOrder, setSubmittedOrder] = React.useState<OrderFormSubmission | null>(null);
+  const [purchasedItems, setPurchasedItems] = React.useState<CartItem[]>([]);
+  const [orderId, setOrderId] = React.useState('');
+  const [orderTime, setOrderTime] = React.useState('');
+  const [orderTotal, setOrderTotal] = React.useState(0);
 
-  const name = user?.name || '';
-  const phone = user?.phone || '';
-  const email = user?.email || '';
-  const comment = '';
+  const orderPlaced = submittedOrder !== null;
 
-  const street = user?.address || '';
-  const house = user?.address ? '—' : '';
-  const entrance = '';
-  const flat = '';
-
-  const purchasedItems: CartItem[] = [];
-  const orderId = '';
-  const orderTime = '';
-  const orderTotal = 0;
+  useEffect(() => {
+    if (cart.length === 0 && !orderPlaced) {
+      router.push('/cart');
+    }
+  }, [cart, orderPlaced, router]);
 
   const itemsSubtotal = selectSubtotal(cart);
-  const deliveryCost = checkoutType === 'delivery' ? (itemsSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : DELIVERY_COST) : 0;
-  const grandTotal = itemsSubtotal + deliveryCost;
+  const deliveryCost = selectDeliveryCost(itemsSubtotal, checkoutType);
+  const promoDiscount = selectPromoDiscount(itemsSubtotal, promoCode);
+  const grandTotal = selectGrandTotal(itemsSubtotal, deliveryCost, promoDiscount);
+
+  const handlePlaceOrder = (values: OrderFormSubmission) => {
+    setPurchasedItems([...cart]);
+    setOrderTotal(grandTotal);
+
+    const randomId = 'AB-' + Math.floor(100000 + Math.random() * 90000);
+    setOrderId(randomId);
+
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    setOrderTime(`${day}.${month}.${year} ${hours}:${minutes}`);
+
+    if (user && checkoutType === 'delivery' && values.street.trim() && values.house.trim()) {
+      const street = values.street.trim();
+      const house = values.house.trim();
+      const flat = values.flat.trim() || undefined;
+      const entrance = values.entrance.trim() || undefined;
+      const address: UserAddress = { street, house, flat, entrance };
+      const sameAsProfile =
+        user.address?.street === street &&
+        user.address?.house === house &&
+        user.address?.flat === flat &&
+        user.address?.entrance === entrance;
+      if (!sameAsProfile) void updateAddress(address);
+    }
+
+    clearCart();
+    clearPromo();
+    setSubmittedOrder(values);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAFAFA]">
-      <Header />
-
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
 
         <AnimatePresence mode="wait">
           {!orderPlaced ? (
@@ -72,34 +106,23 @@ export default function CheckoutPage() {
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-comfortaa tracking-tight">
                   Оформление заказа
                 </h1>
-                <p className="text-xs sm:text-sm text-stone-500 font-inter mt-1">
-                  Пожалуйста, заполните необходимые поля для оформления доставки или самовывоза.
-                </p>
               </div>
 
-              <CheckoutForm
-                cart={cart}
+              <OrderForm
+                key={user?.id ?? 'anonymous'}
                 checkoutType={checkoutType}
                 pickupAddress={pickupAddress}
-                itemsSubtotal={itemsSubtotal}
-                deliveryCost={deliveryCost}
-                grandTotal={grandTotal}
+                onSelectPickupAddress={setPickupAddress}
                 user={user}
+                summary={{ cart, itemsSubtotal, deliveryCost, promoDiscount, grandTotal }}
+                onSubmit={handlePlaceOrder}
               />
             </motion.div>
           ) : (
 
             <OrderSuccess
               checkoutType={checkoutType}
-              pickupAddress={pickupAddress}
-              name={name}
-              phone={phone}
-              email={email}
-              street={street}
-              house={house}
-              entrance={entrance}
-              flat={flat}
-              comment={comment}
+              {...submittedOrder}
               orderId={orderId}
               orderTime={orderTime}
               orderTotal={orderTotal}
@@ -108,9 +131,6 @@ export default function CheckoutPage() {
           )}
         </AnimatePresence>
 
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 }

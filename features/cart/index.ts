@@ -1,3 +1,12 @@
-export { default as CartToast } from './ui/CartToast';
-export type { CartToastData } from './ui/CartToast';
-export { CartToastProvider, useCartToast } from './model/CartToastProvider';
+export { CartProvider } from './model/CartProvider';
+export { useCart, useCartToast } from './model/cartContext';
+export type {
+  CartContextValue,
+  CartDataValue,
+  CartActionsValue,
+  CartToastValue,
+  CartToastData,
+  CheckoutType,
+  AddToCartOptions,
+} from './model/cartContext';
+export { findRecommendation, selectCartRecommendations } from './model/recommendations';

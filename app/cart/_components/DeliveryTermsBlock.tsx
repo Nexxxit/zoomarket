@@ -10,7 +10,7 @@ export default function DeliveryTermsBlock() {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#FFF7ED] rounded-[24px] p-6 border border-orange-100 space-y-5"
+      className="bg-orange-50 rounded-3xl p-6 border border-orange-100 space-y-5"
     >
       <h3 className="text-sm font-bold font-comfortaa text-orange-950 uppercase tracking-wider flex items-center gap-2">
         <span>📍 Условия Доставки</span>

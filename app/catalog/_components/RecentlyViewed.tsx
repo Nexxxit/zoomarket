@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/entities/product';
 import { ProductCard } from '@/entities/product';
@@ -16,7 +15,7 @@ export default function RecentlyViewed({ products }: RecentlyViewedProps) {
     <div className="border-t border-stone-100 pt-10 space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg sm:text-xl font-black font-comfortaa text-stone-900 uppercase tracking-tight flex items-center gap-2">
-          <span>Вы смотрели недавно</span>
+          Вы смотрели недавно
         </h3>
 
         <div className="flex items-center gap-2">
@@ -42,12 +41,7 @@ export default function RecentlyViewed({ products }: RecentlyViewedProps) {
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {products.map((p) => (
-          <div
-            key={p.id}
-            className="w-[280px] sm:w-[300px] flex-shrink-0 snap-start"
-          >
-            <ProductCard product={p} />
-          </div>
+          <ProductCard key={p.id} product={p} className="w-70 sm:w-75 shrink-0 snap-start" />
         ))}
       </div>
     </div>

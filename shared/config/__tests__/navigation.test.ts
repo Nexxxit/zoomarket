@@ -27,6 +27,10 @@ describe('productHref — routes regression vs generateStaticParams format', () 
     expect(checked).toBeGreaterThan(0);
   });
 
+  it('falls back to animal page when subcategoryId is missing', () => {
+    expect(productHref({ id: '7', animal: 'cat' })).toBe('/catalog/cat');
+  });
+
   it('falls back to "all" subSection segment', () => {
     expect(productHref({ id: '7', animal: 'cat', subcategoryId: 'cat-toys' }))
       .toBe('/catalog/cat/cat-toys/all/7');

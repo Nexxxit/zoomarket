@@ -9,12 +9,8 @@ export function getAllCategories(): Category[] {
 
 const subcategoriesCache = new Map<string, SubCategory[]>();
 
-export function getCachedSubcategories(categoryId: string): SubCategory[] | null {
+function getCachedSubcategories(categoryId: string): SubCategory[] | null {
   return subcategoriesCache.get(categoryId) ?? null;
-}
-
-export function hasCachedSubcategories(categoryId: string): boolean {
-  return subcategoriesCache.has(categoryId);
 }
 
 function resolveSubcategories(categoryId: string): SubCategory[] {
@@ -37,17 +33,6 @@ function resolveSubcategories(categoryId: string): SubCategory[] {
   }
 
   return generateGenericSubcategories(categoryId);
-}
-
-export function getSubcategorySkeletonPlan(categoryId: string): number[] {
-  if (categoryId === 'brands') {
-    return [];
-  }
-
-  const source = getCachedSubcategories(categoryId) ?? resolveSubcategories(categoryId);
-  return source.map((sub) =>
-    sub.subSections && sub.subSections.length > 0 ? sub.subSections.length : 1
-  );
 }
 
 export function getSubcategoriesSync(categoryId: string): SubCategory[] {

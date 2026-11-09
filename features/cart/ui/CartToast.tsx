@@ -4,28 +4,27 @@ import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, X, Plus, ShoppingCart } from 'lucide-react';
-import type { Product } from '@/entities/product';
 import { ProductIcon } from '@/shared/ui';
 import { formatPrice } from '@/shared/lib/format';
+import { useCartToast, useCart } from '../model/cartContext';
 
-export interface CartToastData {
-  product: Product;
-  recommendation: Product | null;
-}
+export default function CartToast() {
+  const { toastData, dismissToast, pauseToastTimer, resumeToastTimer } = useCartToast();
+  const { addToCart } = useCart();
 
-interface CartToastProps {
-  data?: CartToastData | null;
-  onClose?: () => void;
-}
-
-export default function CartToast({ data = null, onClose }: CartToastProps) {
-  const toastData = data;
+  const handleAddRecommendation = () => {
+    if (!toastData?.recommendation) return;
+    const recommended = toastData.recommendation;
+    addToCart(recommended, undefined);
+  };
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[calc(100%-2rem)] max-w-sm flex-col items-end sm:bottom-6 sm:right-6">
-
+    <div className="pointer-events-none fixed bottom-4 right-4 z-100 flex w-[calc(100%-2rem)] max-w-sm flex-col items-end sm:bottom-6 sm:right-6">
+      {/* Hover на стабильном wrapper вне key: смена контента тоста не сбрасывает паузу */}
       <div
         className="pointer-events-auto w-full"
+        onMouseEnter={pauseToastTimer}
+        onMouseLeave={resumeToastTimer}
       >
         <AnimatePresence mode="wait">
           {toastData && (
@@ -56,7 +55,7 @@ export default function CartToast({ data = null, onClose }: CartToastProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={dismissToast}
                   className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700 cursor-pointer"
                   aria-label="Закрыть уведомление"
                 >
@@ -67,7 +66,8 @@ export default function CartToast({ data = null, onClose }: CartToastProps) {
               <div className="px-4 pb-4">
                 <Link
                   href="/cart"
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1C1917] px-4 py-2.5 font-inter text-xs font-semibold text-white transition-colors hover:bg-black"
+                  onClick={dismissToast}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-4 py-2.5 font-inter text-xs font-semibold text-white transition-colors hover:bg-black"
                 >
                   <ShoppingCart className="h-3.5 w-3.5" />
                   Перейти в корзину
@@ -96,6 +96,7 @@ export default function CartToast({ data = null, onClose }: CartToastProps) {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.9 }}
+                        onClick={handleAddRecommendation}
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-colors hover:bg-orange-600 cursor-pointer"
                         aria-label={`Добавить ${toastData.recommendation.name} в корзину`}
                       >

@@ -38,6 +38,10 @@ describe('parseCatalogSlug', () => {
       .toBe('Лечебный и диетический корм');
   });
 
+  it('decodes percent-encoded subcategoryId', () => {
+    expect(parseCatalogSlug(['cat', 'cat%2Dfood']).subcategoryId).toBe('cat-food');
+  });
+
   it('treats 3-level slug as grid view without productId', () => {
     const state = parseCatalogSlug(['cat', 'cat-food', 'all']);
     expect(state.productId).toBeNull();

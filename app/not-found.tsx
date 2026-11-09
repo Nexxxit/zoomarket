@@ -1,15 +1,10 @@
-import React from 'react';
 import Link from 'next/link';
 import { Home, HelpCircle } from 'lucide-react';
-import { Header } from '@/widgets/header';
-import { Footer } from '@/widgets/footer';
 import { LottiePlayer } from '@/shared/ui';
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="max-w-xl mx-auto px-4 py-16 flex-grow flex flex-col items-center justify-center text-center space-y-8 select-none">
+    <main className="max-w-xl mx-auto px-4 py-16 grow flex flex-col items-center justify-center text-center space-y-8 select-none">
         <div className="h-44 w-full max-w-sm">
           <LottiePlayer type="sleeping-cat" className="h-full w-full" />
         </div>
@@ -33,15 +28,13 @@ export default function NotFound() {
             <span>В каталог Айболит</span>
           </Link>
           <Link
-            href="/delivery"
+            href="#"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold font-comfortaa text-xs rounded-full transition-all cursor-pointer"
           >
             <HelpCircle className="w-4 h-4" />
             <span>Доставка и оплата</span>
           </Link>
         </div>
-      </main>
-      <Footer />
-    </div>
+    </main>
   );
 }

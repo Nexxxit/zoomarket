@@ -4,21 +4,22 @@
 @theme {
   --font-comfortaa: var(--font-comfortaa), 'Comfortaa', cursive, sans-serif;
   --font-inter: var(--font-inter), 'Inter', sans-serif;
+  /* Промежуточные оттенки, используемые в UI: без токенов классы orange-650/stone-150 не генерируются */
+  --color-orange-650: #d64c10;
+  --color-stone-150: #eeecea;
+  /* Высота sticky-шапки: hero уходит под неё (-mt-header) и компенсирует отступом (pt-header) */
+  --spacing-header: 114px;
 }
 
 body {
   font-family: var(--font-inter), sans-serif;
 }
 
-/* Rounded and shadow design system variables */
-.shadow-aibolit {
+/* Rounded and shadow design system utilities — @utility, чтобы работали варианты (hover:shadow-aibolit-lg) */
+@utility shadow-aibolit {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
-.shadow-aibolit-lg {
+@utility shadow-aibolit-lg {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-.font-comfortaa {
-  font-family: var(--font-comfortaa);
 }

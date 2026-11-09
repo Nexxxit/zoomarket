@@ -1,7 +1,10 @@
-import React from 'react';
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import CatalogPage from './CatalogPage';
+import CatalogSkeleton from '../_components/CatalogSkeleton';
 import { CATALOG_STRUCTURE } from '@/entities/catalog';
 import { MOCK_PRODUCTS } from '@/entities/product';
+import { parseCatalogSlug } from '@/features/catalog';
 
 interface CatalogProps {
   params: Promise<{ slug?: string[] }>;
@@ -54,6 +57,22 @@ export async function generateStaticParams() {
   return paths;
 }
 
+async function CatalogRoute({ params }: CatalogProps) {
+  const { slug = [] } = await params;
+  if (slug.length > 0 && !parseCatalogSlug(slug).section) {
+    notFound();
+  }
+  return <CatalogPage slug={slug} />;
+}
+
+/**
+ * URL-данные (params) читаются внутри <Suspense>: иначе Next не может собрать
+ * мгновенный App Shell для навигации (instant-shell-url-data, Next 16).
+ */
 export default function CatalogDynamicPage({ params }: CatalogProps) {
-  return <CatalogPage params={params} />;
+  return (
+    <Suspense fallback={<CatalogSkeleton />}>
+      <CatalogRoute params={params} />
+    </Suspense>
+  );
 }

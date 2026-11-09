@@ -1,2 +1,3 @@
-export type { UserProfile } from './model/types';
-export { DEMO_USER } from './model/mock';
+export type { UserProfile, UserRole, UserAddress } from './model/types';
+export { formatAddress, isAddressComplete } from './model/formatAddress';
+export { MOCK_USER_PROFILES } from './model/mock';

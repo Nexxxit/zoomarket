@@ -24,7 +24,7 @@ export default function Navbar({ mobileMenuOpen = false, onCloseMenu }: NavbarPr
       <div className="pt-1 pb-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <nav
-            className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 overflow-x-auto py-1 no-scrollbar scrollbar-none text-xs sm:text-sm font-extrabold font-comfortaa"
+            className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 overflow-x-auto py-1 scrollbar-none text-xs sm:text-sm font-extrabold font-comfortaa"
           >
             {categoryNavItems.map((item) => {
               const isActive =
@@ -48,7 +48,7 @@ export default function Navbar({ mobileMenuOpen = false, onCloseMenu }: NavbarPr
                   }`}
                 >
                   <Icon
-                    className="w-4 h-4 sm:w-[1.125rem] sm:h-[1.125rem] shrink-0"
+                    className="w-4 h-4 sm:w-4.5 sm:h-4.5 shrink-0"
                     strokeWidth={2.2}
                     aria-hidden="true"
                   />

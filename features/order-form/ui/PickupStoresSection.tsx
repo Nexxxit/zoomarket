@@ -6,9 +6,10 @@ import { PICKUP_STORES } from '@/shared/config/site';
 
 interface PickupStoresSectionProps {
   pickupAddress: string;
+  onSelectStore: (address: string) => void;
 }
 
-export default function PickupStoresSection({ pickupAddress }: PickupStoresSectionProps) {
+export default function PickupStoresSection({ pickupAddress, onSelectStore }: PickupStoresSectionProps) {
   return (
     <div className="space-y-5">
       <div className="space-y-1">
@@ -28,11 +29,11 @@ export default function PickupStoresSection({ pickupAddress }: PickupStoresSecti
             <button
               key={store.id}
               type="button"
-              className={`w-full text-left p-4 border rounded-2xl transition-all cursor-pointer flex gap-3 ${
-                isSelected
-                  ? 'bg-orange-500/10 border-orange-500 shadow-xs'
-                  : 'bg-stone-50 border-stone-150 hover:bg-stone-100/50'
-              }`}
+              onClick={() => onSelectStore(store.address)}
+              className={`w-full text-left p-4 border rounded-2xl transition-all cursor-pointer flex gap-3 ${isSelected
+                ? 'bg-orange-500/10 border-orange-500 shadow-xs'
+                : 'bg-stone-50 border-stone-150 hover:bg-stone-100/50'
+                }`}
             >
               <MapPin className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isSelected ? 'text-orange-500' : 'text-stone-400'}`} />
               <div className="space-y-1 font-inter">

@@ -39,7 +39,7 @@ export const HERO_SLIDES: CarouselSlide[] = [
       <>
         Все для здоровья <br className="hidden sm:inline" />
         и счастья{' '}
-        <span className="text-[#F97316] relative inline-block">
+        <span className="text-orange-500 relative inline-block">
           ваших лапок
           <svg className="absolute left-0 bottom-1 w-full h-2 text-orange-400 opacity-60" viewBox="0 0 100 10" preserveAspectRatio="none">
             <path d="M0,5 Q50,9 100,5" stroke="currentColor" strokeWidth="4" strokeLinecap="round" fill="none" />

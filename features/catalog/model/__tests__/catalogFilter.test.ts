@@ -6,6 +6,7 @@ import {
   selectCategoryBaseProducts,
   buildBrandFacets,
   countOnSale,
+  hasActiveFilters,
   isVetProduct,
   matchesVetSubcategory,
   matchesVetSubSection,
@@ -238,6 +239,14 @@ describe('sortProducts', () => {
   it('sorts popular by rating desc', () => {
     expect(sortProducts(cats, 'popular').map(p => p.rating)).toEqual([5, 4.9, 4.7, 4.4]);
   });
+
+  it('popular breaks equal ratings by reviews count', () => {
+    const tied = [
+      product({ id: 'a', animal: 'cat', rating: 5, reviews: 3 }),
+      product({ id: 'b', animal: 'cat', rating: 5, reviews: 9 }),
+    ];
+    expect(sortProducts(tied, 'popular').map(p => p.id)).toEqual(['b', 'a']);
+  });
 });
 
 describe('selectCategoryBaseProducts', () => {
@@ -290,5 +299,23 @@ describe('vet predicates', () => {
   it('matchesVetSubSection "all" matches any product subSection', () => {
     expect(matchesVetSubSection(product({}), 'all')).toBe(true);
     expect(matchesVetSubSection(product({}), 'Спреи')).toBe(false);
+  });
+});
+
+describe('hasActiveFilters', () => {
+  it('default criteria are not active', () => {
+    expect(hasActiveFilters(criteria())).toBe(false);
+  });
+
+  it('ignores searchQuery and sortType', () => {
+    expect(hasActiveFilters(criteria({ searchQuery: 'корм', sortType: 'cheap-first' }))).toBe(false);
+  });
+
+  it('detects each facet criterion', () => {
+    expect(hasActiveFilters(criteria({ priceMin: '100' }))).toBe(true);
+    expect(hasActiveFilters(criteria({ priceMax: '500' }))).toBe(true);
+    expect(hasActiveFilters(criteria({ brands: ['Ownat'] }))).toBe(true);
+    expect(hasActiveFilters(criteria({ onSaleOnly: true }))).toBe(true);
+    expect(hasActiveFilters(criteria({ badgeOnly: true }))).toBe(true);
   });
 });

@@ -3,7 +3,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductCard from '../ProductCard';
-import { CartToastProvider } from '@/features/cart';
+import { CartProvider } from '@/features/cart';
+import { FavoritesProvider } from '@/features/favorites';
 import { formatPrice } from '@/shared/lib/format';
 import type { Product } from '@/entities/product';
 
@@ -13,10 +14,6 @@ vi.mock('next/image', async () => {
     default: (props: Record<string, unknown>) => createElement('img', props),
   };
 });
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/catalog/cat/cat-food/all',
-}));
 
 const product: Product = {
   id: 'test-1',
@@ -40,9 +37,11 @@ const product: Product = {
 
 function renderCard(p: Product) {
   return render(
-    <CartToastProvider>
-      <ProductCard product={p} />
-    </CartToastProvider>,
+    <FavoritesProvider>
+      <CartProvider>
+        <ProductCard product={p} />
+      </CartProvider>
+    </FavoritesProvider>,
   );
 }
 
@@ -78,6 +77,24 @@ describe('ProductCard', () => {
     renderCard({ ...product, inStock: false });
     expect(screen.getByRole('button', { name: 'Нет в наличии' })).toBeDisabled();
     expect(screen.queryByRole('button', { name: /Добавить .* в корзину/ })).toBeNull();
+  });
+
+  it('links to detail page with encoded from query when backTo is provided', () => {
+    const { container } = render(
+      <FavoritesProvider>
+        <CartProvider>
+          <ProductCard product={product} backTo="cat/cat-food" />
+        </CartProvider>
+      </FavoritesProvider>,
+    );
+    const href = container.querySelector('a')?.getAttribute('href') ?? '';
+    expect(href).toContain('/catalog/cat/cat-food/%D0%A1%D1%83%D1%85%D0%BE%D0%B9%20%D0%BA%D0%BE%D1%80%D0%BC/test-1?from=');
+    expect(decodeURIComponent(href.split('?from=')[1])).toBe('cat/cat-food');
+  });
+
+  it('links without from query when backTo is omitted', () => {
+    const { container } = renderCard(product);
+    expect(container.querySelector('a')?.getAttribute('href')).not.toContain('?from=');
   });
 });
 

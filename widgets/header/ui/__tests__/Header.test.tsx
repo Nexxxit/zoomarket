@@ -3,6 +3,9 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from '../Header';
 import { MOCK_PRODUCTS } from '@/entities/product';
+import { CartProvider } from '@/features/cart';
+import { FavoritesProvider } from '@/features/favorites';
+import { AuthProvider } from '@/features/auth';
 
 vi.mock('next/image', async () => {
   const { createElement } = await vi.importActual<typeof import('react')>('react');
@@ -15,10 +18,22 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/catalog',
 }));
 
+function renderHeader() {
+  return render(
+    <AuthProvider>
+      <FavoritesProvider>
+        <CartProvider>
+          <Header />
+        </CartProvider>
+      </FavoritesProvider>
+    </AuthProvider>,
+  );
+}
+
 describe('Header interactivity', () => {
   it('hamburger toggles the navbar mobile menu', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderHeader();
 
     expect(screen.queryByText('Весь каталог')).toBeNull();
     const menuButton = screen.getByRole('button', { name: 'Меню каталога' });
@@ -31,7 +46,7 @@ describe('Header interactivity', () => {
 
   it('profile button opens AuthDrawer', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderHeader();
 
     expect(screen.queryByText('Вход в Айболит')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Личный кабинет' }));
@@ -40,7 +55,7 @@ describe('Header interactivity', () => {
 
   it('search dropdown shows results, closes on Escape, handles no-match', async () => {
     const user = userEvent.setup();
-    render(<Header />);
+    renderHeader();
     const input = screen.getByRole('textbox', { name: 'Поиск по каталогу' });
 
     await user.type(input, 'ownat');

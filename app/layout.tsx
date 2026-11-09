@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Comfortaa, Inter } from 'next/font/google';
 import './globals.css';
 import Providers from './providers/Providers';
+import { Header } from '@/widgets/header';
+import { Footer } from '@/widgets/footer';
 
 const comfortaa = Comfortaa({
   subsets: ['latin', 'cyrillic'],
@@ -27,7 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ru" className={`${comfortaa.variable} ${inter.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning className="font-inter bg-stone-50/50 text-stone-900 min-h-screen antialiased">
         <Providers>
-          {children}
+          <div className="flex flex-col min-h-screen bg-stone-50">
+            <Header />
+            {children}
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

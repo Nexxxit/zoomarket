@@ -4,18 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 
-import { Header } from '@/widgets/header';
-import { Footer } from '@/widgets/footer';
 import PromoCarousel from './_components/PromoCarousel';
 import HotDealsSection from './_components/HotDealsSection';
 import GiftCoupon from './_components/GiftCoupon';
 
 export default function PromotionsPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1">
 
         <div className="mb-6">
           <Link
@@ -33,9 +28,6 @@ export default function PromotionsPage() {
 
         <GiftCoupon />
 
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 }

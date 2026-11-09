@@ -1,8 +1,5 @@
 export { VirtualizedCatalogContainer } from './ui/VirtualizedCatalogContainer';
 export { CategorySection } from './ui/CategorySection';
-export { CatalogNavbar } from './ui/CatalogNavbar';
-export { CategorySectionSkeleton } from './ui/CategorySectionSkeleton';
-export { SubcategoryGridSkeleton } from './ui/SubcategoryGridSkeleton';
 export { default as HomeCategoryTiles } from './ui/HomeCategoryTiles';
 export type {
   CatalogSection,
@@ -12,6 +9,7 @@ export type {
   BrandFacet,
 } from './model/types';
 export { parseCatalogSlug } from './model/parseCatalogSlug';
+export { parseBackSource, getCatalogBackLabel } from './model/catalogBack';
 export {
   VET_SUBSECTION_ALIASES,
   isVetProduct,
@@ -22,5 +20,11 @@ export {
   selectCategoryBaseProducts,
   buildBrandFacets,
   countOnSale,
+  hasActiveFilters,
 } from './model/catalogFilter';
 export { getCatalogTitle } from './model/catalogTitle';
+export { buildCatalogBreadcrumbs } from './model/catalogBreadcrumbs';
+export type { CatalogBreadcrumbsInput } from './model/catalogBreadcrumbs';
+export { resolveCatalogView } from './model/catalogView';
+export type { CatalogView, CatalogViewInput } from './model/catalogView';
+export { selectRecentlyViewed } from './model/recentlyViewed';

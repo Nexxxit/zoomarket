@@ -26,7 +26,7 @@ export default function PromoCarousel() {
       ),
       subtitle: "Сроки акции ограничены! Дарите питомцам заботу по сниженным ценам. Вся линейка сертифицирована.",
       expiration: "Действует до 30 июня 2026 г.",
-      expireBg: "bg-orange-100 text-orange-850 border-orange-200",
+      expireBg: "bg-orange-100 text-orange-800 border-orange-200",
       background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
       borderClass: 'border-orange-100',
       illustration: logoIllustration
@@ -43,7 +43,7 @@ export default function PromoCarousel() {
       ),
       subtitle: "Привезем прямо к вашей двери со скоростью виляния хвостика. Качественная упаковка и бережное отношение.",
       expiration: "Постоянная акция зоомаркета",
-      expireBg: "bg-emerald-100 text-emerald-850 border-emerald-200",
+      expireBg: "bg-emerald-100 text-emerald-800 border-emerald-200",
       background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
       borderClass: 'border-emerald-100',
       illustration: logoIllustration
@@ -60,7 +60,7 @@ export default function PromoCarousel() {
       ),
       subtitle: "При покупке развивающих интерактивных игрушек скидка 20% на весь ассортимент. Питомцы будут в восторге!",
       expiration: "Действует до 15 июля 2026 г.",
-      expireBg: "bg-sky-100 text-sky-850 border-sky-200",
+      expireBg: "bg-sky-100 text-sky-800 border-sky-200",
       background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
       borderClass: 'border-sky-100',
       illustration: logoIllustration
@@ -69,7 +69,7 @@ export default function PromoCarousel() {
 
   return (
     <>
-      <div className="relative overflow-hidden rounded-[24px] shadow-aibolit h-[440px] sm:h-[340px] md:h-[300px] mb-4">
+      <div className="relative overflow-hidden rounded-3xl shadow-aibolit h-110 sm:h-85 md:h-75 mb-4">
         <AnimatePresence initial={false}>
           <motion.div
             key={currentSlide}

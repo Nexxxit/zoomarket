@@ -1,40 +1,45 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Star, ShoppingCart, Heart, Plus, Minus } from 'lucide-react';
 import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
+import { cn } from '@/shared/lib';
 import { ProductIcon } from '@/shared/ui';
-import { INITIAL_CART_ITEMS } from '@/entities/cart';
-import { useCartToast } from '@/features/cart';
+import { useCart } from '@/features/cart';
+import { useFavorites } from '@/features/favorites';
+import { getDefaultProductSize } from '../model/defaultSize';
 import type { Product } from '../model/types';
-import { DEMO_FAVORITE_IDS } from '../model/mock';
-
-export type { Product };
 
 interface ProductCardProps {
   product: Product;
+  /** Сегменты пути каталога (slug), из которого открыт товар, для кнопки «Назад» на странице товара. */
+  backTo?: string;
+  className?: string;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const { showToast } = useCartToast();
-  const cart = INITIAL_CART_ITEMS;
-  const liked = DEMO_FAVORITE_IDS.includes(product.id);
-  const selectedSize = product.sizes?.[2] || product.sizes?.[0] || '';
+export default function ProductCard({ product, backTo, className }: ProductCardProps) {
+  const { addToCart, updateQty, cart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const liked = isFavorite(product.id);
+  const [selectedSize, setSelectedSize] = React.useState<string | undefined>(
+    () => getDefaultProductSize(product)
+  );
 
   const cartItem = cart.find(item => item.id === product.id && item.size === selectedSize);
   const currentQty = cartItem ? cartItem.quantity : 0;
 
-  const pathname = usePathname();
-  const isFromAll = pathname ? (pathname.endsWith(`/${product.subcategoryId}`) || pathname.endsWith(`/${product.subcategoryId}/all`)) : false;
-
-  const detailUrl = `${productHref(product)}${isFromAll ? '?from=all' : ''}`;
-
+  const detailUrl = backTo
+    ? `${productHref(product)}?from=${encodeURIComponent(backTo)}`
+    : productHref(product);
   return (
     <div
-      className="relative flex flex-col justify-between bg-white rounded-2xl overflow-hidden hover:shadow-aibolit-lg transition-all duration-300 group border border-stone-100 h-full"
+      className={cn(
+        'relative flex flex-col justify-between bg-white rounded-2xl overflow-hidden hover:shadow-aibolit-lg transition-all duration-300 group border border-stone-100 h-full',
+        className
+      )}
       id={`product-card-${product.id}`}
       style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
     >
@@ -54,7 +59,9 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <button
         type="button"
+        onClick={() => toggleFavorite(product.id)}
         aria-label={liked ? `Убрать ${product.name} из избранного` : `Добавить ${product.name} в избранное`}
+        aria-pressed={liked}
         className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-sm backdrop-blur-xs transition-colors cursor-pointer ${
           liked ? 'bg-red-50 text-red-500' : 'bg-white/80 hover:bg-white text-stone-400 hover:text-red-500'
         }`}
@@ -100,6 +107,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <button
                     key={size}
                     type="button"
+                    onClick={() => setSelectedSize(size)}
                     aria-pressed={isActive}
                     className={`text-[10px] font-bold font-inter px-2 py-1 rounded-md transition-all cursor-pointer border ${
                       isActive
@@ -131,15 +139,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.inStock === false ? (
             <button
               disabled
-              className="w-full bg-stone-100 text-stone-400 font-bold font-comfortaa py-2.5 px-4 rounded-full flex items-center justify-center gap-2 transition-all text-xs sm:text-sm cursor-not-allowed border-0 outline-none h-[44px]"
+              className="w-full bg-stone-100 text-stone-400 font-bold font-comfortaa py-2.5 px-4 rounded-full flex items-center justify-center gap-2 transition-all text-xs sm:text-sm cursor-not-allowed border-0 outline-none h-11"
             >
               <span>Нет в наличии</span>
             </button>
           ) : currentQty > 0 ? (
-            <div className="flex items-center justify-between w-full bg-stone-100 p-1 rounded-full border border-stone-200/60 h-[44px]">
+            <div className="flex items-center justify-between w-full bg-stone-100 p-1 rounded-full border border-stone-200/60 h-11">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 type="button"
+                onClick={() => updateQty(product.id, -1, selectedSize)}
                 aria-label="Уменьшить количество"
                 className="w-9 h-9 rounded-full bg-white hover:bg-orange-50 hover:text-orange-500 border border-stone-200/50 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer"
               >
@@ -151,6 +160,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 type="button"
+                onClick={() => updateQty(product.id, 1, selectedSize)}
                 aria-label="Увеличить количество"
                 className="w-9 h-9 rounded-full bg-white hover:bg-orange-50 hover:text-orange-500 border border-stone-200/50 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer"
               >
@@ -161,9 +171,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             <motion.button
               whileTap={{ scale: 0.96 }}
               type="button"
-              onClick={() => showToast(product)}
+              onClick={() => addToCart(product, selectedSize)}
               aria-label={`Добавить ${product.name} в корзину`}
-              className="w-full bg-[#1C1917] hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors text-xs sm:text-sm h-[44px]"
+              className="w-full bg-stone-900 hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors text-xs sm:text-sm h-11"
             >
               <ShoppingCart className="w-4 h-4 transition-transform group-hover/btn:-translate-y-0.5" />
               <span>В корзину</span>

@@ -103,7 +103,8 @@ export function sortProducts(products: Product[], sortType: CatalogSortType): Pr
   } else if (sortType === 'expensive-first') {
     sorted.sort((a, b) => b.price - a.price);
   } else {
-    sorted.sort((a, b) => b.rating - a.rating);
+    // «По популярности»: рейтинг, при равенстве — количество отзывов
+    sorted.sort((a, b) => (b.rating - a.rating) || (b.reviews - a.reviews));
   }
   return sorted;
 }
@@ -145,6 +146,16 @@ export function buildBrandFacets(products: Product[], state: CatalogSlugState): 
     }
   });
   return Object.entries(brandsMap).map(([name, count]) => ({ name, count }));
+}
+
+export function hasActiveFilters(filters: FilterCriteria): boolean {
+  return (
+    filters.priceMin !== '' ||
+    filters.priceMax !== '' ||
+    filters.brands.length > 0 ||
+    filters.onSaleOnly ||
+    filters.badgeOnly
+  );
 }
 
 export function countOnSale(products: Product[], state: CatalogSlugState): number {

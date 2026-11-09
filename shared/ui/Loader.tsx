@@ -41,7 +41,7 @@ export default function Loader({ fullPage = false, text = 'Загрузка...',
       <motion.p
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-        className="text-[#F97316]/80 font-bold font-comfortaa text-xs tracking-wide"
+        className="text-orange-500/80 font-bold font-comfortaa text-xs tracking-wide"
       >
         {text}
       </motion.p>

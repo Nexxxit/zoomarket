@@ -6,6 +6,7 @@ import { CheckCircle, Truck, Store } from 'lucide-react';
 import { motion } from 'motion/react';
 import { LottiePlayer } from '@/shared/ui';
 import type { CartItem } from '@/entities/cart';
+import { formatAddress } from '@/entities/user';
 import { PICKUP_STORES } from '@/shared/config/site';
 import RatePurchased from './RatePurchased';
 
@@ -19,6 +20,7 @@ interface OrderSuccessProps {
   house: string;
   entrance: string;
   flat: string;
+  deliveryInterval: string;
   comment: string;
   orderId: string;
   orderTime: string;
@@ -36,6 +38,7 @@ export default function OrderSuccess({
   house,
   entrance,
   flat,
+  deliveryInterval,
   comment,
   orderId,
   orderTime,
@@ -75,7 +78,7 @@ export default function OrderSuccess({
             Спасибо за доверие, {name}!
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-inter max-w-lg mx-auto leading-relaxed">
-            Наши ветеринарные специалисты уже упаковывают самые свежие вкусняшки для вашего пушистого любимца!
+            Наши специалисты уже упаковывают самые свежие вкусняшки для вашего любимца!
           </p>
         </div>
       </div>
@@ -121,7 +124,7 @@ export default function OrderSuccess({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-inter">
             <div className="space-y-1 bg-stone-50 p-3.5 rounded-xl border border-stone-100">
               <span className="text-stone-400 font-bold block">Получатель:</span>
-              <span className="font-semibold text-stone-850 block">{name}</span>
+              <span className="font-semibold text-stone-800 block">{name}</span>
               <span className="text-stone-500 block font-mono">{phone}</span>
               {email && <span className="text-stone-500 block">{email}</span>}
             </div>
@@ -131,13 +134,14 @@ export default function OrderSuccess({
                 {checkoutType === 'delivery' ? 'Адрес Доставки:' : 'Адрес Самовывоза:'}
               </span>
               {checkoutType === 'delivery' ? (
-                <p className="font-semibold text-stone-850 leading-relaxed">
-                  ул. {street}, д. {house}
-                  {entrance && `, под. ${entrance}`}
-                  {flat && `, кв. ${flat}`}
-                </p>
+                <>
+                  <p className="font-semibold text-stone-800 leading-relaxed">
+                    {formatAddress({ street, house, flat, entrance })}
+                  </p>
+                  <span className="block text-[10px] text-stone-400 font-normal mt-0.5">Интервал доставки: {deliveryInterval}</span>
+                </>
               ) : (
-                <p className="font-semibold text-stone-850 leading-relaxed">
+                <p className="font-semibold text-stone-800 leading-relaxed">
                   {pickupAddress}
                   <span className="block text-[10px] text-stone-400 font-normal mt-0.5">Часы работы: {selectedStore.hours}</span>
                 </p>
@@ -146,14 +150,22 @@ export default function OrderSuccess({
           </div>
 
           {comment && (
-            <div className="p-3 bg-orange-50/50 border border-orange-100 text-stone-650 text-xs rounded-xl font-medium font-inter">
-              💬 <strong>Ваш комментарий:</strong> &quot;{comment}&quot;
+            <div className="p-3 bg-orange-50/50 border border-orange-100 text-stone-600 text-xs rounded-xl font-medium font-inter">
+              <strong>Комментарий к заказу:</strong> &quot;{comment}&quot;
             </div>
           )}
         </div>
 
         <div className="p-6 bg-stone-50/30 text-center text-xs font-inter text-stone-500 leading-normal">
-          🧬 Копия чека и статус отслеживания курьера отправлены вам по SMS на номер <strong>{phone}</strong>. Мы сохраняем историю вашей заботы о питомце!
+          {email ? (
+            <>
+              Копия чека отправлена вам на email <strong>{email}</strong>. Статус заказа продолжает отслеживаться по SMS на номер <strong>{phone}</strong>. Мы сохраняем историю вашей заботы о питомце!
+            </>
+          ) : (
+            <>
+              Копия чека и статус отслеживания курьера отправлены вам по SMS на номер <strong>{phone}</strong>. Мы сохраняем историю вашей заботы о питомце!
+            </>
+          )}
         </div>
 
       </div>
@@ -167,11 +179,6 @@ export default function OrderSuccess({
         >
           Вернуться в каталог 🛍️
         </Link>
-        <button
-          className="px-8 py-3.5 border border-stone-300 hover:bg-stone-50 text-stone-700 font-bold font-comfortaa text-xs sm:text-sm rounded-full text-center w-full sm:w-auto"
-        >
-          На главную страницу
-        </button>
       </div>
 
     </motion.div>

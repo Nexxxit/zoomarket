@@ -6,10 +6,12 @@ import { CategorySection } from './CategorySection';
 
 interface VirtualizedCatalogContainerProps {
   selectedAnimal?: string;
+  onSelectSubcategory?: (subId: string, categoryId: string, subSection?: string) => void;
 }
 
 export const VirtualizedCatalogContainer: React.FC<VirtualizedCatalogContainerProps> = ({
   selectedAnimal,
+  onSelectSubcategory,
 }) => {
   const isFilteredToAnimal = Boolean(selectedAnimal && selectedAnimal !== 'all');
 
@@ -20,7 +22,7 @@ export const VirtualizedCatalogContainer: React.FC<VirtualizedCatalogContainerPr
   return (
     <div className="w-full space-y-6">
       <div
-        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative min-h-[600px] space-y-16"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 relative min-h-150 space-y-16"
       >
         {categories.map((category, index) => (
           <div
@@ -34,6 +36,7 @@ export const VirtualizedCatalogContainer: React.FC<VirtualizedCatalogContainerPr
           >
             <CategorySection
               category={category}
+              onSelectSubcategory={onSelectSubcategory}
             />
           </div>
         ))}

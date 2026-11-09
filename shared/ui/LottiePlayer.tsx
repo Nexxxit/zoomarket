@@ -34,7 +34,7 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             z
           </motion.span>
           <motion.span
-            className="absolute right-6 top-5 font-comfortaa text-[#F97316] font-bold text-lg select-none"
+            className="absolute right-6 top-5 font-comfortaa text-orange-500 font-bold text-lg select-none"
             animate={{ y: [-5, -25], x: [0, -8], opacity: [0, 1, 0], scale: [0.8, 1.3] }}
             transition={{ repeat: Infinity, duration: 2, delay: 0.6, ease: "easeOut" }}
           >
@@ -105,7 +105,7 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             ❤️
           </motion.span>
           <motion.span
-            className="absolute right-10 top-2 text-orange-400 text-md"
+            className="absolute right-10 top-2 text-orange-400 text-base"
             animate={{ y: [10, -20], x: [0, 8], opacity: [0, 1, 0], scale: [0.5, 1.1] }}
             transition={{ repeat: Infinity, duration: 1.5, delay: 0.8 }}
           >

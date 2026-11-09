@@ -21,7 +21,7 @@ export function parseCatalogSlug(slug: string[]): CatalogSlugState {
     isBrands,
     isVet,
     activeBrandName: isBrands && slug[1] ? decodeCatalogSlugSegment(slug[1]) : null,
-    subcategoryId: isBrands ? null : (slug[1] || null),
+    subcategoryId: isBrands || !slug[1] ? null : decodeCatalogSlugSegment(slug[1]),
     subSection: isBrands ? 'all' : (slug[2] ? decodeCatalogSlugSegment(slug[2]) : 'all'),
     productId: slug.length >= 4 ? slug[3] : null,
     slugLength: slug.length,

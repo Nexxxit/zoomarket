@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 interface SortBarProps {
   count: number;
   sortType: 'popular' | 'cheap-first' | 'expensive-first';

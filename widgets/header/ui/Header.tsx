@@ -9,25 +9,26 @@ import {
 } from 'lucide-react';
 
 import { motion } from 'motion/react';
-import { INITIAL_CART_ITEMS, selectCartCount } from '@/entities/cart';
-import { DEMO_USER } from '@/entities/user';
+import { selectCartCount } from '@/entities/cart';
+import { useCart } from '@/features/cart';
 import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
 import { CONTACT_PHONE, CONTACT_PHONE_HREF, WORK_HOURS, TOP_BAR_LINKS } from '@/shared/config/site';
 import { Navbar } from '@/widgets/navbar';
-import { AuthDrawer } from '@/features/auth';
+import { AuthDrawer, useAuth } from '@/features/auth';
 import { useHeaderSearch } from '../model/useHeaderSearch';
 
 export default function Header() {
   const pathname = usePathname();
 
-  const cartCount = selectCartCount(INITIAL_CART_ITEMS);
+  const { cart } = useCart();
+  const cartCount = selectCartCount(cart);
 
   const search = useHeaderSearch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
-  const user = DEMO_USER;
+  const { user } = useAuth();
   return (
     <>
       {search.isOpen && (
@@ -268,7 +269,7 @@ export default function Header() {
 
       </header>
 
-      <AuthDrawer open={authOpen} user={user} onClose={() => setAuthOpen(false)} />
+      <AuthDrawer open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }

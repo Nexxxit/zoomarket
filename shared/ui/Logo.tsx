@@ -35,7 +35,7 @@ export default function Logo({
           <span className={`text-xl md:text-2xl font-bold font-comfortaa tracking-tight leading-none ${isWhite ? 'text-white' : 'text-stone-900'}`}>
             Айболит
           </span>
-          <span className={`text-[10px] md:text-xs font-semibold font-inter uppercase tracking-widest mt-0.5 ${isWhite ? 'text-stone-450' : 'text-orange-500'}`}>
+          <span className={`text-[10px] md:text-xs font-semibold font-inter uppercase tracking-widest mt-0.5 ${isWhite ? 'text-stone-400' : 'text-orange-500'}`}>
             Заботливый зоомаркет
           </span>
         </div>

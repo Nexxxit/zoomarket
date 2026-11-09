@@ -24,7 +24,7 @@ interface PromoBannerData {
 function PromoBanner({ banner }: { banner: PromoBannerData }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-[24px] shadow-aibolit border ${banner.borderClass} p-6 sm:p-8 md:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8 my-10`}
+      className={`relative overflow-hidden rounded-3xl shadow-aibolit border ${banner.borderClass} p-6 sm:p-8 md:p-12 flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8 my-10`}
       style={{ background: banner.bgGradient }}
     >
       <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4 text-left flex flex-col items-start justify-center h-full">

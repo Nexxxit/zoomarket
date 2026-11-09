@@ -3,22 +3,24 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
 import type { Category, SubCategory } from '@/entities/catalog';
-import { getSubcategoriesSync, getSubcategorySkeletonPlan, MOCK_PRODUCTS } from '@/entities';
-import { CategorySectionSkeleton } from './CategorySectionSkeleton';
+import { getSubcategoriesSync } from '@/entities';
+import { getAllProducts } from '@/entities/product';
 
 interface CategorySectionProps {
   category: Category;
+  onSelectSubcategory?: (subId: string, categoryId: string, subSection?: string) => void;
 }
 
 export const CategorySection: React.FC<CategorySectionProps> = ({
   category,
+  onSelectSubcategory,
 }) => {
   const isBrandsCategory = category.id === 'brands';
 
   const brandNames = useMemo(() => {
     if (!isBrandsCategory) return [];
     const unique = new Set<string>();
-    MOCK_PRODUCTS.forEach((product) => {
+    getAllProducts().forEach((product) => {
       if (product.brand?.trim()) {
         unique.add(product.brand.trim());
       }
@@ -27,7 +29,6 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   }, [isBrandsCategory]);
 
   // Без useEffect-загрузки: данные синхронно из мока entities/catalog.
-  const isLoading = false;
   const subcategories: SubCategory[] = isBrandsCategory ? [] : getSubcategoriesSync(category.id);
 
   return (
@@ -45,8 +46,10 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
       {isBrandsCategory ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {brandNames.map((brand) => (
-            <div
+            <button
               key={brand}
+              type="button"
+              onClick={() => onSelectSubcategory?.(brand, category.id)}
               className="bg-white border border-stone-200/80 rounded-2xl p-4 sm:p-5 hover:border-orange-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-between text-center gap-3 group h-44 relative overflow-hidden"
             >
               <div className="w-14 h-14 bg-stone-50/80 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform border border-stone-100 p-2">
@@ -63,35 +66,37 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
               <span className="text-[11px] sm:text-xs font-bold font-comfortaa text-stone-800 group-hover:text-orange-500 transition-colors leading-tight line-clamp-2">
                 {brand}
               </span>
-            </div>
+            </button>
           ))}
         </div>
-      ) : isLoading ? (
-        <CategorySectionSkeleton
-          cardCounts={getSubcategorySkeletonPlan(category.id)}
-        />
       ) : (
         <div className="space-y-8">
           {subcategories.map((subcat) => (
             <div key={subcat.id} className="space-y-3">
               {/* Subcategory Header bar in a rounded white container card */}
-              <div
-                className="bg-white border border-stone-200/80 rounded-2xl px-5 py-3.5 shadow-xs cursor-pointer hover:border-orange-500 transition-colors"
+              <button
+                type="button"
+                onClick={() => onSelectSubcategory?.(subcat.id, category.id)}
+                className="block w-full text-left bg-white border border-stone-200/80 rounded-2xl px-5 py-3.5 shadow-xs cursor-pointer hover:border-orange-500 transition-colors"
               >
-                <h3 className="text-xs sm:text-sm font-black font-comfortaa text-stone-900 uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-black font-comfortaa text-stone-900 uppercase tracking-wider">
                   {subcat.name}
-                </h3>
-              </div>
+                </span>
+              </button>
 
               {/* Grid of subsections */}
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {subcat.subSections && subcat.subSections.length > 0 ? (
                   subcat.subSections.map((sec) => (
-                    <div
+                    <button
                       key={sec}
+                      type="button"
+                      onClick={() =>
+                        onSelectSubcategory?.(subcat.id, category.id, sec)
+                      }
                       className="bg-white border border-stone-200/80 rounded-2xl p-4 sm:p-5 hover:border-orange-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-between text-center gap-3 group h-44 relative overflow-hidden"
                     >
-                      <div className="w-14 h-14 bg-stone-50/80 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform border border-stone-100 p-2">
+                      <span className="w-14 h-14 bg-stone-50/80 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform border border-stone-100 p-2">
                         <Image
                           src="/logo_aibolit.jpg"
                           alt="Айболит"
@@ -100,18 +105,22 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                           className="object-cover rounded-full"
                           referrerPolicy="no-referrer"
                         />
-                      </div>
+                      </span>
 
                       <span className="text-[11px] sm:text-xs font-bold font-comfortaa text-stone-800 group-hover:text-orange-500 transition-colors leading-tight line-clamp-2">
                         {sec}
                       </span>
-                    </div>
+                    </button>
                   ))
                 ) : (
-                  <div
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onSelectSubcategory?.(subcat.id, category.id)
+                    }
                     className="bg-white border border-stone-200/80 rounded-2xl p-4 sm:p-5 hover:border-orange-500 hover:shadow-md transition-all cursor-pointer flex flex-col items-center justify-between text-center gap-3 group h-44 relative overflow-hidden"
                   >
-                    <div className="w-14 h-14 bg-stone-50/80 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform border border-stone-100 p-2">
+                    <span className="w-14 h-14 bg-stone-50/80 rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform border border-stone-100 p-2">
                       <Image
                         src="/logo_aibolit.jpg"
                         alt="Айболит"
@@ -120,12 +129,12 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                         className="object-cover rounded-full"
                         referrerPolicy="no-referrer"
                       />
-                    </div>
+                    </span>
 
                     <span className="text-[11px] sm:text-xs font-bold font-comfortaa text-stone-800 group-hover:text-orange-500 transition-colors leading-tight line-clamp-2">
                       {subcat.name}
                     </span>
-                  </div>
+                  </button>
                 )}
               </div>
             </div>

@@ -11,7 +11,7 @@ export const FOOTER_WORK_HOURS = 'Приём заказов по телефон�
 
 export const TOP_BAR_LINKS = [
   { label: 'О компании', href: '#' },
-  { label: 'Доставка и оплата', href: '/delivery' },
+  { label: 'Доставка и оплата', href: '#' },
   { label: 'Наши магазины', href: '#' },
   { label: 'Статьи', href: '#' },
   { label: 'Вопросы и ответы', href: '#' },

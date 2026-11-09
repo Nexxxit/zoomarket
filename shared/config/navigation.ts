@@ -17,5 +17,10 @@ export interface ProductHrefInput {
 }
 
 export function productHref(product: ProductHrefInput): string {
+  // TODO(API): товары без subcategoryId не имеют маршрута детали
+  // (generateStaticParams их не регистрирует) — ведём на страницу животного.
+  if (!product.subcategoryId) {
+    return `${ROUTES.catalog}/${encodeCatalogSlugSegment(product.animal)}`;
+  }
   return `/catalog/${product.animal}/${product.subcategoryId}/${encodeCatalogSlugSegment(product.subSection || 'all')}/${product.id}`;
 }

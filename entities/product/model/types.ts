@@ -1,3 +1,9 @@
+/** Строка спецификации в формате «подпись: значение», приходит с сервера. */
+export interface ProductSpecification {
+  label: string;
+  value: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -16,4 +22,8 @@ export interface Product {
   subcategoryId?: string;
   subSection?: string;
   inStock?: boolean;
+  /** Абзацы описания товара с сервера. */
+  description?: string[];
+  /** Спецификации товара с сервера. */
+  specifications?: ProductSpecification[];
 }

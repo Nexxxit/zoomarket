@@ -1,3 +1,5 @@
+export type CheckoutType = 'delivery' | 'pickup';
+
 export interface CartItem {
   id: string;
   name: string;

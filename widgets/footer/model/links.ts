@@ -17,7 +17,7 @@ export const catalogLinks: FooterLink[] = [
 
 export const customerLinks: FooterLink[] = [
   { label: 'О компании', href: '#' },
-  { label: 'Доставка и оплата', href: '/delivery' },
+  { label: 'Доставка и оплата', href: '#' },
   { label: 'Наши магазины', href: '#' },
   { label: 'Статьи', href: '#' },
   { label: 'Бренды', href: '/catalog/brands' },
