@@ -63,7 +63,7 @@ export default function OrderSuccess({
           </div>
         ) : (
           <div className="h-44 w-full max-w-lg mx-auto mb-2 flex flex-col items-center justify-center">
-            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center border border-green-100 shadow-sm text-green-500">
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center border border-green-100 shadow-xs text-green-500">
               <CheckCircle className="w-10 h-10" />
             </div>
             <p className="text-xs font-semibold text-stone-600 font-inter mt-3">Ваш заказ успешно оформлен! 🎉🐾</p>
@@ -83,7 +83,7 @@ export default function OrderSuccess({
         </div>
       </div>
 
-      <div className="bg-white border border-stone-150 rounded-[28px] shadow-sm overflow-hidden divide-y divide-stone-150">
+      <div className="bg-white border border-stone-150 rounded-[28px] shadow-xs overflow-hidden divide-y divide-stone-150">
 
         <div className="p-6 bg-stone-50/50 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-inter font-medium text-stone-600">
           <div className="space-y-1 border-r border-stone-150/60 pr-2">

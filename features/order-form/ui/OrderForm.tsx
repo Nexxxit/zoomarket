@@ -74,7 +74,7 @@ export default function OrderForm({
   if (summary) {
     return (
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-8">
-        <div className="lg:col-span-8 bg-white border border-stone-150 rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+        <div className="lg:col-span-8 bg-white border border-stone-150 rounded-3xl p-6 md:p-8 shadow-xs space-y-8">
           {sections}
         </div>
 
@@ -93,7 +93,7 @@ export default function OrderForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`${className ? `${className} ` : ''}bg-white rounded-3xl p-6 md:p-8 border border-stone-150 shadow-sm space-y-8`}
+      className={`${className ? `${className} ` : ''}bg-white rounded-3xl p-6 md:p-8 border border-stone-150 shadow-xs space-y-8`}
     >
       {sections}
 
@@ -101,7 +101,7 @@ export default function OrderForm({
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
         type="submit"
-        className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold font-inter text-sm md:text-base rounded-full shadow-sm transition-colors text-center cursor-pointer"
+        className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold font-inter text-sm md:text-base rounded-full shadow-xs transition-colors text-center cursor-pointer"
       >
         {submitLabel}
       </motion.button>

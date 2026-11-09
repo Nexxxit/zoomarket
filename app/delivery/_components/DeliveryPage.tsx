@@ -9,7 +9,7 @@ import CourierPanel from './CourierPanel';
 
 export default function DeliveryPage() {
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow">
 
         <div className="mb-6">
           <Link
@@ -43,7 +43,7 @@ export default function DeliveryPage() {
             submitLabel="🚀 Заказать бережную доставку Айболит"
             notice={
               <div className="flex items-start gap-3 bg-stone-50 p-4 rounded-2xl border border-stone-150">
-                <Shield className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                <Shield className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
                 <div className="text-xs text-stone-500 space-y-1 font-inter">
                   <p className="font-bold text-stone-800">Безопасная бесконтактная передача</p>
                   <p>Все медицинские средства защиты соблюдаются. Заказы со сложными ветеринарными препаратами комплектуются в изотермических пакетах с температурными датчиками.</p>

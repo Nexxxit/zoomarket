@@ -84,12 +84,12 @@ export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: Fi
             <input
               type="number"
               placeholder="От"
-              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-none focus:border-orange-500 font-medium"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-medium"
             />
             <input
               type="number"
               placeholder="До"
-              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-none focus:border-orange-500 font-medium"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-medium"
             />
           </div>
         </div>

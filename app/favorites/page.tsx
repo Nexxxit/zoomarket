@@ -26,7 +26,7 @@ export default function FavoritesPage() {
   const activeFavoriteCount = favorites.length;
 
   return (
-    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow">
         <div className="mb-6">
           <Link
             href="/"
@@ -56,7 +56,7 @@ export default function FavoritesPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="w-full bg-white rounded-4xl px-8 py-16 md:p-16 border border-stone-100 shadow-sm flex flex-col items-center justify-center text-center space-y-6"
+              className="w-full bg-white rounded-4xl px-8 py-16 md:p-16 border border-stone-100 shadow-xs flex flex-col items-center justify-center text-center space-y-6"
             >
               <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center text-red-500">
                 <Heart className="w-10 h-10" />

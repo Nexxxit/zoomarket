@@ -81,7 +81,7 @@ export default function LoginForm({ onSubmit, isSubmitting, error }: LoginFormPr
       </form>
 
       <div className="pt-6 border-t border-stone-100 flex items-start gap-2.5 text-[11px] text-stone-400 font-inter leading-relaxed">
-        <Award className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+        <Award className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
         <p>
           Авторизация полностью безопасна. Данные сеанса шифруются локально на вашем устройстве в соответствии с регламентом «Айболит Охрана».
         </p>

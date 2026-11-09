@@ -14,7 +14,7 @@ export default function GiftCoupon() {
           </p>
         </div>
       </div>
-      <div className="relative font-comfortaa bg-white py-3 px-6 rounded-2xl border-2 border-dashed border-green-500 font-black text-green-700 tracking-wider text-sm shadow-sm">
+      <div className="relative font-comfortaa bg-white py-3 px-6 rounded-2xl border-2 border-dashed border-green-500 font-black text-green-700 tracking-wider text-sm shadow-xs">
         ПРОМОКОД: AIBOLIT2026
       </div>
     </section>

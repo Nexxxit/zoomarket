@@ -6,7 +6,6 @@ export interface CarouselSlide {
   subtitle: string;
   badge: string;
   bgClass: string;
-  bgGradient: string;
   btnText?: string;
   illustration: React.ReactNode;
   link?: { slug: string[]; query?: Record<string, string | null> };
@@ -18,11 +17,10 @@ export const HERO_SLIDES: CarouselSlide[] = [
     subtitle: "Сухой и влажный гипоаллергенный корм супер-премиум класса для кошек и собак.",
     badge: "Новинка",
     bgClass: "bg-[#D1F2D9]",
-    bgGradient: "from-emerald-700 via-teal-800 to-green-900",
     btnText: "Перейти",
     illustration: (
       <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-        <div className="absolute inset-0 bg-emerald-300/30 rounded-full blur-2xl transform scale-90" />
+        <div className="absolute inset-0 bg-emerald-300/30 rounded-full blur-2xl scale-90" />
         <Image
           src="/logo_aibolit.jpg"
           alt=""
@@ -50,10 +48,9 @@ export const HERO_SLIDES: CarouselSlide[] = [
     subtitle: "Отборные фермерские корма, сертифицированные витамины, средства ухода и развивающие интерактивные игрушки для ваших любимых питомцев.",
     badge: "Заботливый зоомаркет Айболит",
     bgClass: "bg-[#FCE3CF]",
-    bgGradient: "from-orange-600 via-amber-600 to-yellow-700",
     illustration: (
       <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-        <div className="absolute inset-0 bg-orange-400/20 rounded-full blur-2xl transform scale-90" />
+        <div className="absolute inset-0 bg-orange-400/20 rounded-full blur-2xl scale-90" />
         <Image
           src="/logo_aibolit.jpg"
           alt=""
@@ -69,11 +66,10 @@ export const HERO_SLIDES: CarouselSlide[] = [
     subtitle: "Сертифицированная ветаптека: капли, ошейники, спреи и таблетки от ведущих ветеринарных брендов.",
     badge: "Ветаптека",
     bgClass: "bg-[#D5EBFD]",
-    bgGradient: "from-sky-700 via-blue-800 to-indigo-900",
     btnText: "Выбрать защиту",
     illustration: (
       <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-        <div className="absolute inset-0 bg-sky-400/20 rounded-full blur-2xl transform scale-90" />
+        <div className="absolute inset-0 bg-sky-400/20 rounded-full blur-2xl scale-90" />
         <Image
           src="/logo_aibolit.jpg"
           alt=""

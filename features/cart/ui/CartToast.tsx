@@ -97,7 +97,7 @@ export default function CartToast() {
                         type="button"
                         whileTap={{ scale: 0.9 }}
                         onClick={handleAddRecommendation}
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-colors hover:bg-orange-600 cursor-pointer"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-xs transition-colors hover:bg-orange-600 cursor-pointer"
                         aria-label={`Добавить ${toastData.recommendation.name} в корзину`}
                       >
                         <Plus className="h-4 w-4" />

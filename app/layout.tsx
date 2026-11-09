@@ -15,7 +15,7 @@ const comfortaa = Comfortaa({
 const inter = Inter({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-inter',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
 });
 
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru" className={`${comfortaa.variable} ${inter.variable}`} suppressHydrationWarning>
-      <body suppressHydrationWarning className="font-inter bg-stone-50/50 text-stone-900 min-h-screen antialiased">
+      <body suppressHydrationWarning className="font-inter text-stone-900 min-h-dvh antialiased">
         <Providers>
-          <div className="flex flex-col min-h-screen bg-stone-50">
+          <div className="flex flex-col min-h-dvh bg-stone-50">
             <Header />
             {children}
             <Footer />

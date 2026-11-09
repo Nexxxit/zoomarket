@@ -82,11 +82,11 @@ export default function Header() {
       </div>
 
       <header className="sticky top-0 z-50 w-full">
-        <div className="transition-colors duration-300 backdrop-blur-md border-b border-stone-200/30 bg-transparent hover:bg-white/95">
+        <div className="transition-colors duration-300 backdrop-blur-md border-b border-stone-200/30 bg-white/95 hover:bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3 md:gap-4">
 
-            <Link href="/catalog" className="flex-shrink-0 flex items-center gap-2 group">
+            <Link href="/catalog" className="shrink-0 flex items-center gap-2 group">
               <Image
                 src="/logo_aibolit.jpg"
                 alt="Айболит"
@@ -120,7 +120,7 @@ export default function Header() {
                     if (e.key === 'Escape') search.close();
                   }}
                   placeholder="Поиск по товарам, брендам, категориям..."
-                  className="w-full pl-11 pr-10 py-2.5 md:py-3 bg-white/90 hover:bg-white border border-stone-200/80 text-stone-900 rounded-full text-xs md:text-sm font-inter focus:outline-none focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 shadow-2xs transition-all placeholder:text-stone-400 font-medium"
+                  className="w-full pl-11 pr-10 py-2.5 md:py-3 bg-white/90 hover:bg-white border border-stone-200/80 text-stone-900 rounded-full text-xs md:text-sm font-inter focus:outline-hidden focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 shadow-2xs transition-all placeholder:text-stone-400 font-medium"
                 />
                 {search.query && (
                   <button
@@ -151,7 +151,7 @@ export default function Header() {
                           onClick={search.close}
                           className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-orange-50/40 transition-colors group cursor-pointer"
                         >
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform border border-stone-100 bg-stone-50 overflow-hidden p-1">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border border-stone-100 bg-stone-50 overflow-hidden p-1">
                             <Image
                               src="/logo_aibolit.jpg"
                               alt=""
@@ -174,7 +174,7 @@ export default function Header() {
                               <span className="font-medium text-stone-500">{product.category}</span>
                             </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
+                          <div className="text-right shrink-0">
                             <span className="text-xs font-black text-orange-600 font-mono">
                               {formatPrice(product.price)}
                             </span>
@@ -205,7 +205,7 @@ export default function Header() {
                 <motion.div
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`p-2.5 rounded-full transition-colors relative bg-white/70 backdrop-blur-sm border border-stone-200/60 shadow-2xs ${
+                  className={`p-2.5 rounded-full transition-colors relative bg-white/70 backdrop-blur-xs border border-stone-200/60 shadow-2xs ${
                     pathname === '/favorites'
                       ? 'bg-orange-50 text-orange-600 border-orange-200'
                       : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900'
@@ -242,8 +242,8 @@ export default function Header() {
                 aria-label="Личный кабинет"
                 className={
                   user
-                    ? 'w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-sm border border-orange-200 cursor-pointer shrink-0 p-0'
-                    : 'p-2.5 rounded-full text-stone-700 bg-white/70 backdrop-blur-sm border border-stone-200/60 shadow-2xs hover:bg-stone-100 hover:text-orange-500 transition-colors relative flex items-center justify-center cursor-pointer'
+                    ? 'w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-xs border border-orange-200 cursor-pointer shrink-0 p-0'
+                    : 'p-2.5 rounded-full text-stone-700 bg-white/70 backdrop-blur-xs border border-stone-200/60 shadow-2xs hover:bg-stone-100 hover:text-orange-500 transition-colors relative flex items-center justify-center cursor-pointer'
                 }
                 title="Личный кабинет"
               >

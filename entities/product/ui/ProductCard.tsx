@@ -46,12 +46,12 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
 
       <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-1.5 pointer-events-none">
         {product.onSale && (
-          <span className="bg-orange-500 font-comfortaa text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
+          <span className="bg-orange-500 font-comfortaa text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-xs">
             –{product.salePct}%
           </span>
         )}
         {product.badge && (
-          <span className="bg-emerald-500 font-comfortaa text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-sm">
+          <span className="bg-emerald-500 font-comfortaa text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-xs">
             {product.badge}
           </span>
         )}
@@ -62,7 +62,7 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
         onClick={() => toggleFavorite(product.id)}
         aria-label={liked ? `Убрать ${product.name} из избранного` : `Добавить ${product.name} в избранное`}
         aria-pressed={liked}
-        className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-sm backdrop-blur-xs transition-colors cursor-pointer ${
+        className={`absolute top-3 right-3 z-10 p-2 rounded-full shadow-xs backdrop-blur-xs transition-colors cursor-pointer ${
           liked ? 'bg-red-50 text-red-500' : 'bg-white/80 hover:bg-white text-stone-400 hover:text-red-500'
         }`}
       >
@@ -139,7 +139,7 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
           {product.inStock === false ? (
             <button
               disabled
-              className="w-full bg-stone-100 text-stone-400 font-bold font-comfortaa py-2.5 px-4 rounded-full flex items-center justify-center gap-2 transition-all text-xs sm:text-sm cursor-not-allowed border-0 outline-none h-11"
+              className="w-full bg-stone-100 text-stone-400 font-bold font-comfortaa py-2.5 px-4 rounded-full flex items-center justify-center gap-2 transition-all text-xs sm:text-sm cursor-not-allowed border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 h-11"
             >
               <span>Нет в наличии</span>
             </button>
@@ -173,7 +173,7 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
               type="button"
               onClick={() => addToCart(product, selectedSize)}
               aria-label={`Добавить ${product.name} в корзину`}
-              className="w-full bg-stone-900 hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors text-xs sm:text-sm h-11"
+              className="w-full bg-stone-900 hover:bg-black text-white font-semibold font-inter py-2.5 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer shadow-xs transition-colors text-xs sm:text-sm h-11"
             >
               <ShoppingCart className="w-4 h-4 transition-transform group-hover/btn:-translate-y-0.5" />
               <span>В корзину</span>

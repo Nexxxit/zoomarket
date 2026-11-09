@@ -32,7 +32,7 @@ export default function ProductPurchaseBox({
         <button
           type="button"
           onClick={onDecrement}
-          className="w-10 h-10 rounded-full bg-stone-50 hover:bg-orange-50 hover:text-orange-500 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer border-0"
+          className="w-10 h-10 rounded-full bg-stone-50 hover:bg-orange-50 hover:text-orange-500 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1"
         >
           <Minus className="w-4 h-4" />
         </button>
@@ -42,7 +42,7 @@ export default function ProductPurchaseBox({
         <button
           type="button"
           onClick={onIncrement}
-          className="w-10 h-10 rounded-full bg-stone-50 hover:bg-orange-50 hover:text-orange-500 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer border-0"
+          className="w-10 h-10 rounded-full bg-stone-50 hover:bg-orange-50 hover:text-orange-500 flex items-center justify-center text-stone-600 transition-colors shadow-xs cursor-pointer border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -52,7 +52,7 @@ export default function ProductPurchaseBox({
     mainAction = (
       <button
         disabled
-        className="flex-1 bg-stone-100 text-stone-400 font-bold font-comfortaa py-3.5 px-6 rounded-full flex items-center justify-center gap-2.5 transition-all text-sm cursor-not-allowed border-0 outline-none h-13"
+        className="flex-1 bg-stone-100 text-stone-400 font-bold font-comfortaa py-3.5 px-6 rounded-full flex items-center justify-center gap-2.5 transition-all text-sm cursor-not-allowed border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 h-13"
       >
         <span>Товар временно отсутствует</span>
       </button>
@@ -62,7 +62,7 @@ export default function ProductPurchaseBox({
       <button
         type="button"
         onClick={onAddToCart}
-        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold font-comfortaa py-3.5 px-6 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-sm cursor-pointer border-0 outline-none h-13"
+        className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold font-comfortaa py-3.5 px-6 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-md shadow-orange-500/10 hover:shadow-orange-500/20 text-sm cursor-pointer border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 h-13"
       >
         <ShoppingCart className="w-4 h-4" />
         <span>Добавить в корзину</span>

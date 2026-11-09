@@ -164,7 +164,7 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
           />
 
           <motion.div
-            className="absolute w-10 h-10 rounded-full bg-gradient-to-tr from-orange-600 via-orange-500 to-amber-300 flex items-center justify-center border-2 border-white shadow-md cursor-pointer"
+            className="absolute w-10 h-10 rounded-full bg-linear-to-tr from-orange-600 via-orange-500 to-amber-300 flex items-center justify-center border-2 border-white shadow-md cursor-pointer"
             animate={{
               y: [0, -32, 0],
               scaleY: [0.8, 1.1, 0.8, 0.82],
@@ -258,14 +258,14 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
               transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
             >
               <div className="w-1/2 flex justify-around">
-                <div className="w-10 h-full bg-stone-300 rounded" />
-                <div className="w-10 h-full bg-stone-300 rounded" />
-                <div className="w-10 h-full bg-stone-300 rounded" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
               </div>
               <div className="w-1/2 flex justify-around">
-                <div className="w-10 h-full bg-stone-300 rounded" />
-                <div className="w-10 h-full bg-stone-300 rounded" />
-                <div className="w-10 h-full bg-stone-300 rounded" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
+                <div className="w-10 h-full bg-stone-300 rounded-sm" />
               </div>
             </motion.div>
           </div>
@@ -481,7 +481,7 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
   if (type === 'playing-pet-toys') {
     return (
-      <div className={`w-full flex justify-center items-center py-4 bg-gradient-to-r from-orange-50/10 via-orange-100/15 to-orange-50/10 border-y border-stone-100/60 ${className}`} style={{ width, height }}>
+      <div className={`w-full flex justify-center items-center py-4 bg-linear-to-r from-orange-50/10 via-orange-100/15 to-orange-50/10 border-y border-stone-100/60 ${className}`} style={{ width, height }}>
         <div className="flex flex-col items-center justify-center select-none relative w-full max-w-lg h-32 px-4">
           <svg viewBox="0 0 320 100" className="w-[300px] h-[95px]">
 

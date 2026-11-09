@@ -17,7 +17,7 @@ export default function CartList({ cart, checkoutType, itemsSubtotal }: CartList
   const { updateQty, removeFromCart } = useCart();
 
   return (
-    <div className="lg:col-span-8 bg-white p-6 border border-stone-100 rounded-3xl shadow-sm space-y-6">
+    <div className="lg:col-span-8 bg-white p-6 border border-stone-100 rounded-3xl shadow-xs space-y-6">
       <div className="divide-y divide-stone-100">
         {cart.map((item) => (
           <CartItemRow

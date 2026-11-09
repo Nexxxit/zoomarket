@@ -16,7 +16,7 @@ export default function Logo({
   return (
     <div className="flex items-center gap-3 select-none">
       <motion.div 
-        className={`relative ${className} flex-shrink-0 overflow-hidden rounded-full`}
+        className={`relative ${className} shrink-0 overflow-hidden rounded-full`}
         whileHover={{ scale: 1.05, rotate: 2 }}
         transition={{ type: "spring", stiffness: 300, damping: 15 }}
       >
@@ -25,7 +25,7 @@ export default function Logo({
           alt="Айболит"
           width={96}
           height={96}
-          className="w-full h-full object-cover drop-shadow-sm"
+          className="w-full h-full object-cover drop-shadow-xs"
           priority
         />
       </motion.div>

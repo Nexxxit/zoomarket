@@ -58,7 +58,7 @@ export default function OrderSummary({
             onClick={() => onCheckoutTypeChange?.('delivery')}
             aria-pressed={checkoutType === 'delivery'}
             className={`flex-1 py-2.5 text-center text-xs font-bold rounded-full transition-all cursor-pointer flex items-center justify-center gap-1.5 ${checkoutType === 'delivery'
-              ? 'bg-orange-500 text-white shadow-sm'
+              ? 'bg-orange-500 text-white shadow-xs'
               : 'text-stone-600 hover:text-stone-900'
               }`}
           >
@@ -70,7 +70,7 @@ export default function OrderSummary({
             onClick={() => onCheckoutTypeChange?.('pickup')}
             aria-pressed={checkoutType === 'pickup'}
             className={`flex-1 py-2.5 text-center text-xs font-bold rounded-full transition-all cursor-pointer flex items-center justify-center gap-1.5 ${checkoutType === 'pickup'
-              ? 'bg-orange-500 text-white shadow-sm'
+              ? 'bg-orange-500 text-white shadow-xs'
               : 'text-stone-600 hover:text-stone-900'
               }`}
           >
@@ -111,7 +111,7 @@ export default function OrderSummary({
               value={promoInput}
               onChange={(e) => onPromoInputChange(e.target.value)}
               placeholder="Введите промокод"
-              className="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-orange-500 font-medium placeholder:text-stone-400"
+              className="flex-1 bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-medium placeholder:text-stone-400"
             />
             <button
               type="button"
@@ -145,7 +145,7 @@ export default function OrderSummary({
       <button
         type="button"
         onClick={() => router.push('/cart/checkout')}
-        className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold font-inter rounded-full tracking-wide text-xs sm:text-sm shadow-sm cursor-pointer flex items-center justify-center gap-2 transition-colors"
+        className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold font-inter rounded-full tracking-wide text-xs sm:text-sm shadow-xs cursor-pointer flex items-center justify-center gap-2 transition-colors"
       >
         <CreditCard className="w-4 h-4" />
         <span>Перейти к оформлению</span>

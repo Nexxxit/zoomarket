@@ -48,7 +48,7 @@ export default function AuthDrawer({ open = false, onClose }: AuthDrawerProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs"
           />
 
           <motion.div

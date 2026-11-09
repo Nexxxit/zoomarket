@@ -12,7 +12,7 @@ interface EmptyStateProps {
 }
 
 const buttonStyles: Record<'primary' | 'outline', string> = {
-  primary: 'px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/10',
+  primary: 'px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white shadow-xs shadow-orange-500/10',
   outline: 'px-5 py-2 border-2 border-stone-900 hover:bg-stone-900 hover:text-white',
 };
 

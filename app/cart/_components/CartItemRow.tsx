@@ -33,7 +33,7 @@ export default function CartItemRow({ item, onDecrease, onIncrease, onRemove }: 
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 pt-4 first:pt-0 border-b border-stone-100">
 
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-xl bg-stone-50 flex items-center justify-center flex-shrink-0 border border-stone-100">
+        <div className="w-16 h-16 rounded-xl bg-stone-50 flex items-center justify-center shrink-0 border border-stone-100">
           <ProductIcon alt={item.name} className="w-12 h-12" />
         </div>
         <div className="flex flex-col items-start gap-1.5">
@@ -80,7 +80,7 @@ export default function CartItemRow({ item, onDecrease, onIncrease, onRemove }: 
         <button
           type="button"
           onClick={onRemove}
-          className="text-stone-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50/50 transition-colors flex-shrink-0 cursor-pointer"
+          className="text-stone-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50/50 transition-colors shrink-0 cursor-pointer"
           title="Удалить товар"
           aria-label={`Удалить ${item.name} из корзины`}
         >

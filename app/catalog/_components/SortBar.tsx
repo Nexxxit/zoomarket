@@ -16,7 +16,7 @@ export default function SortBar({ count, sortType }: SortBarProps) {
         <span className="hidden sm:inline text-stone-400">Сортировать по:</span>
         <select
           defaultValue={sortType}
-          className="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-orange-500 font-semibold text-xs animate-none"
+          className="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-semibold text-xs animate-none"
         >
           <option value="popular">По популярности</option>
           <option value="cheap-first">Сначала дешевые</option>

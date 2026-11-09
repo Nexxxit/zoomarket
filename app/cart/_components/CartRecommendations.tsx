@@ -52,7 +52,7 @@ export default function CartRecommendations({ cart, onAdd }: CartRecommendations
             <button
               type="button"
               onClick={() => onAdd?.(product)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-sm transition-colors hover:bg-orange-600 cursor-pointer"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-xs transition-colors hover:bg-orange-600 cursor-pointer"
               aria-label={`Добавить ${product.name} в корзину`}
             >
               <Plus className="h-4 w-4" />

@@ -54,7 +54,7 @@ export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
   };
 
   return (
-    <div className="bg-white border border-stone-150 rounded-[28px] p-6 shadow-sm space-y-5">
+    <div className="bg-white border border-stone-150 rounded-[28px] p-6 shadow-xs space-y-5">
       <div className="space-y-2.5 border-b border-stone-100 pb-4">
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-base font-bold font-comfortaa text-stone-900 flex items-center gap-2">
@@ -119,7 +119,7 @@ export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
                 className="py-4 first:pt-0 last:pb-0 border-b border-stone-100 last:border-b-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0 overflow-hidden p-1">
                     <Image
                       src="/logo_aibolit.jpg"
                       alt=""

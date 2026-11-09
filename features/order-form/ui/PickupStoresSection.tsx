@@ -35,7 +35,7 @@ export default function PickupStoresSection({ pickupAddress, onSelectStore }: Pi
                 : 'bg-stone-50 border-stone-150 hover:bg-stone-100/50'
                 }`}
             >
-              <MapPin className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isSelected ? 'text-orange-500' : 'text-stone-400'}`} />
+              <MapPin className={`w-5 h-5 shrink-0 mt-0.5 ${isSelected ? 'text-orange-500' : 'text-stone-400'}`} />
               <div className="space-y-1 font-inter">
                 <h4 className={`text-xs font-extrabold font-comfortaa ${isSelected ? 'text-orange-900' : 'text-stone-900'}`}>
                   {store.name}

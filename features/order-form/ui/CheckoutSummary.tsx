@@ -23,7 +23,7 @@ export default function CheckoutSummary({
   grandTotal,
 }: CheckoutSummaryProps) {
   return (
-    <div className="lg:col-span-4 bg-white border border-stone-150 rounded-3xl p-6 shadow-sm space-y-6">
+    <div className="lg:col-span-4 bg-white border border-stone-150 rounded-3xl p-6 shadow-xs space-y-6">
 
       <h3 className="text-sm font-bold font-comfortaa text-stone-500 uppercase tracking-widest leading-none block">
         Ваш заказ
@@ -41,7 +41,7 @@ export default function CheckoutSummary({
                 {item.size && <span>• Вес: {item.size}</span>}
               </div>
             </div>
-            <span className="font-extrabold text-stone-900 flex-shrink-0">
+            <span className="font-extrabold text-stone-900 shrink-0">
               {item.price * item.quantity} ₽
             </span>
           </div>
@@ -84,7 +84,7 @@ export default function CheckoutSummary({
       </motion.button>
 
       <div className="flex gap-2.5 text-[10px] text-stone-400 font-inter leading-relaxed bg-stone-50 p-3.5 rounded-xl border border-stone-100">
-        <ShieldCheck className="w-4 h-4 text-green-600 flex-shrink-0" />
+        <ShieldCheck className="w-4 h-4 text-green-600 shrink-0" />
         <p>Нажимая кнопку, вы соглашаетесь с условиями пользовательского соглашения ветеринарного ведомства «Айболит».</p>
       </div>
 

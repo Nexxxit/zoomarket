@@ -81,7 +81,7 @@ export default function PromoCarousel() {
             style={{ background: slides[currentSlide].background }}
           >
             <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4 text-left flex flex-col items-start justify-center h-full">
-              <div className={`inline-flex items-center gap-2 ${slides[currentSlide].badgeBg} text-white font-bold text-[10px] px-3.5 py-1 rounded-full font-comfortaa uppercase tracking-widest shadow-sm`}>
+              <div className={`inline-flex items-center gap-2 ${slides[currentSlide].badgeBg} text-white font-bold text-[10px] px-3.5 py-1 rounded-full font-comfortaa uppercase tracking-widest shadow-xs`}>
                 {slides[currentSlide].badgeIcon}
                 <span>{slides[currentSlide].badge}</span>
               </div>
@@ -114,8 +114,8 @@ export default function PromoCarousel() {
             <button
               key={idx}
               type="button"
-              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer border-0 outline-none ${
-                isActive ? 'w-8 bg-orange-500 shadow-sm' : 'w-2.5 bg-stone-300 hover:bg-stone-400'
+              className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 ${
+                isActive ? 'w-8 bg-orange-500 shadow-xs' : 'w-2.5 bg-stone-300 hover:bg-stone-400'
               }`}
               aria-label={`Слайд ${idx + 1}`}
             />

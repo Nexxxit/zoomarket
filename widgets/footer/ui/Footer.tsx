@@ -60,11 +60,11 @@ export default function Footer() {
                   required
                   placeholder="Email"
                   autoComplete="email"
-                  className="flex-1 min-w-0 h-9 px-4 rounded-full bg-white text-stone-900 placeholder:text-stone-400 font-inter text-sm border border-transparent focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 min-w-0 h-9 px-4 rounded-full bg-white text-stone-900 placeholder:text-stone-400 font-inter text-sm border border-transparent focus:outline-hidden focus:ring-2 focus:ring-orange-500"
                 />
                 <button
                   type="submit"
-                  className="h-9 px-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-comfortaa font-bold text-sm transition-colors shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-stone-800"
+                  className="h-9 px-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-comfortaa font-bold text-sm transition-colors shrink-0 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-stone-800"
                 >
                   Подписаться
                 </button>

@@ -11,7 +11,7 @@ export default function EmptyCart() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      className="w-full bg-white rounded-4xl px-8 py-16 md:p-16 border border-stone-100 shadow-sm flex flex-col items-center justify-center text-center space-y-6"
+      className="w-full bg-white rounded-4xl px-8 py-16 md:p-16 border border-stone-100 shadow-xs flex flex-col items-center justify-center text-center space-y-6"
     >
       <div className="h-48 w-64 mx-auto">
         <LottiePlayer type="sleeping-cat" className="h-full w-full" />

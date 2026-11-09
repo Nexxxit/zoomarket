@@ -19,7 +19,7 @@ function BackButtonView({ label, onBack }: { label: string; onBack?: () => void 
     <button
       type="button"
       onClick={onBack}
-      className="inline-flex items-center gap-2 text-xs font-bold font-comfortaa text-stone-500 hover:text-stone-900 group cursor-pointer bg-transparent border-0 outline-none"
+      className="inline-flex items-center gap-2 text-xs font-bold font-comfortaa text-stone-500 hover:text-stone-900 group cursor-pointer bg-transparent border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1"
     >
       <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
       <span>Назад в &ldquo;{label}&rdquo;</span>

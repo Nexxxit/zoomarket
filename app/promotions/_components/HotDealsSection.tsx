@@ -43,7 +43,7 @@ function PromoBanner({ banner }: { banner: PromoBannerData }) {
 
         <Link
           href={banner.link}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold font-comfortaa rounded-full text-xs transition-all shadow-sm shadow-orange-500/10 cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold font-comfortaa rounded-full text-xs transition-all shadow-xs shadow-orange-500/10 cursor-pointer"
         >
           <span>{banner.buttonText}</span>
         </Link>

@@ -20,7 +20,7 @@ interface Draft {
 }
 
 const INPUT =
-  'w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-inter text-stone-900 focus:outline-none focus:border-orange-500 disabled:opacity-60';
+  'w-full p-2.5 bg-white border border-stone-200 rounded-xl text-xs font-inter text-stone-900 focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 disabled:opacity-60';
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
   return (
@@ -153,7 +153,7 @@ export default function AddressSection({ address, isSaving, onSave }: AddressSec
         ) : (
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <MapPin className="w-4 h-4 text-stone-400 flex-shrink-0 mt-0.5" />
+              <MapPin className="w-4 h-4 text-stone-400 shrink-0 mt-0.5" />
               <span className={formatted ? 'text-stone-800 font-medium' : 'text-stone-400 italic'}>
                 {formatted || 'Адрес не указан. Добавьте его для быстрого заказа!'}
               </span>
@@ -161,7 +161,7 @@ export default function AddressSection({ address, isSaving, onSave }: AddressSec
             <button
               type="button"
               onClick={startEditing}
-              className="text-[11px] font-bold text-orange-600 hover:text-orange-700 font-comfortaa cursor-pointer flex-shrink-0"
+              className="text-[11px] font-bold text-orange-600 hover:text-orange-700 font-comfortaa cursor-pointer shrink-0"
             >
               Изменить
             </button>
