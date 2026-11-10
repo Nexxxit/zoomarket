@@ -10,5 +10,5 @@ export function formatAddress(address?: UserAddress): string {
 
 /** True, если заполнены обязательные поля адреса. */
 export function isAddressComplete(address?: UserAddress): boolean {
-  return Boolean(address?.street.trim() && address?.house.trim());
+  return Boolean((address?.street ?? '').trim() && (address?.house ?? '').trim());
 }

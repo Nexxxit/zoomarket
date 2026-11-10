@@ -99,7 +99,7 @@ export const CATALOG_STRUCTURE: Record<string, PetCategoryGroup> = {
         id: 'dog-bed',
         name: 'Лежанки и домики',
         type: 'accessory',
-        subSections: ['Ортопедические диваны', 'Непромокаемые коврики', 'Будки в квартиру']
+        subSections: ['Ортопедические диваны', 'Круглые лежаки', 'Непромокаемые коврики', 'Будки в квартиру']
       },
       {
         id: 'dog-toys',
@@ -153,7 +153,7 @@ export const CATALOG_STRUCTURE: Record<string, PetCategoryGroup> = {
         id: 'rodent-food',
         name: 'Питание грызунов',
         type: 'food',
-        subSections: ['Травяное сено горное', 'Ореховые кормосмеси', 'Лакомства-дропсы']
+        subSections: ['Травяное сено горное', 'Травяные гранулы', 'Ореховые кормосмеси', 'Лакомства-дропсы']
       },
       {
         id: 'rodent-cage',

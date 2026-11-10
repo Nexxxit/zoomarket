@@ -10,9 +10,9 @@ const saved: UserAddress = {
   flat: 'кв. 5',
 };
 
-function renderSection(onSave = vi.fn().mockResolvedValue(true)) {
-  render(<AddressSection address={saved} isSaving={false} onSave={onSave} />);
-  return onSave;
+function renderSection(onSave = vi.fn().mockResolvedValue(true), onClear = vi.fn().mockResolvedValue(true)) {
+  render(<AddressSection address={saved} isSaving={false} onSave={onSave} onClear={onClear} />);
+  return { onSave, onClear };
 }
 
 describe('AddressSection', () => {
@@ -22,13 +22,44 @@ describe('AddressSection', () => {
   });
 
   it('asks to add an address when there is none', () => {
-    render(<AddressSection address={undefined} isSaving={false} onSave={vi.fn()} />);
+    render(<AddressSection address={undefined} isSaving={false} onSave={vi.fn()} onClear={vi.fn()} />);
     expect(screen.getByText(/Адрес не указан/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Очистить адрес' })).toBeNull();
+  });
+
+  it('clears the address through onClear', async () => {
+    const user = userEvent.setup();
+    const { onClear } = renderSection();
+
+    await user.click(screen.getByRole('button', { name: 'Очистить адрес' }));
+    expect(onClear).toHaveBeenCalledOnce();
+  });
+
+  it('rebuilds the editing draft when the address changes externally', async () => {
+    const user = userEvent.setup();
+    const onSave = vi.fn().mockResolvedValue(true);
+    const { rerender } = render(
+      <AddressSection address={saved} isSaving={false} onSave={onSave} onClear={vi.fn()} />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Изменить' }));
+    expect(screen.getByLabelText(/^Улица/)).toHaveValue('ул. Ленина');
+
+    rerender(
+      <AddressSection
+        address={{ street: 'ул. Мира', house: 'д. 7' }}
+        isSaving={false}
+        onSave={onSave}
+        onClear={vi.fn()}
+      />,
+    );
+    expect(screen.getByLabelText(/^Улица/)).toHaveValue('ул. Мира');
+    expect(screen.getByLabelText(/^Дом/)).toHaveValue('д. 7');
   });
 
   it('blocks saving until street and house are filled', async () => {
     const user = userEvent.setup();
-    render(<AddressSection address={undefined} isSaving={false} onSave={vi.fn()} />);
+    render(<AddressSection address={undefined} isSaving={false} onSave={vi.fn()} onClear={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: 'Изменить' }));
     const save = screen.getByRole('button', { name: 'Сохранить' });
@@ -45,12 +76,12 @@ describe('AddressSection', () => {
   it('disables all controls while saving', async () => {
     const user = userEvent.setup();
     const { rerender } = render(
-      <AddressSection address={undefined} isSaving={false} onSave={vi.fn()} />,
+      <AddressSection address={undefined} isSaving={false} onSave={vi.fn()} onClear={vi.fn()} />,
     );
     await user.click(screen.getByRole('button', { name: 'Изменить' }));
     await user.type(screen.getByLabelText(/^Улица/), 'ул. Мира');
 
-    rerender(<AddressSection address={undefined} isSaving onSave={vi.fn()} />);
+    rerender(<AddressSection address={undefined} isSaving onSave={vi.fn()} onClear={vi.fn()} />);
     expect(screen.getByLabelText(/^Улица/)).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Сохраняем...' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Отмена' })).toBeDisabled();
@@ -69,7 +100,7 @@ describe('AddressSection', () => {
 
   it('saves a trimmed structured address', async () => {
     const user = userEvent.setup();
-    const onSave = renderSection();
+    const { onSave } = renderSection();
 
     await user.click(screen.getByRole('button', { name: 'Изменить' }));
     await user.clear(screen.getByLabelText(/^Улица/));
@@ -89,7 +120,7 @@ describe('AddressSection', () => {
 
   it('cancels editing without calling onSave and reopens with saved values', async () => {
     const user = userEvent.setup();
-    const onSave = renderSection();
+    const { onSave } = renderSection();
 
     await user.click(screen.getByRole('button', { name: 'Изменить' }));
     await user.clear(screen.getByLabelText(/^Улица/));
@@ -106,7 +137,7 @@ describe('AddressSection', () => {
   it('stays in edit mode when saving fails', async () => {
     const user = userEvent.setup();
     const onSave = vi.fn().mockResolvedValue(false);
-    render(<AddressSection address={undefined} isSaving={false} onSave={onSave} />);
+    render(<AddressSection address={undefined} isSaving={false} onSave={onSave} onClear={vi.fn()} />);
 
     await user.click(screen.getByRole('button', { name: 'Изменить' }));
     await user.type(screen.getByLabelText(/^Улица/), 'ул. Мира');

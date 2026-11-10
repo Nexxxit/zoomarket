@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
 import type { UserAddress } from '@/entities/user';
 import { formatAddress } from '@/entities/user';
@@ -10,6 +10,8 @@ interface AddressSectionProps {
   isSaving: boolean;
   /** Возвращает true при успехе (ответ `PATCH /api/user/address`). */
   onSave: (address: UserAddress) => Promise<boolean>;
+  /** Возвращает true при успехе (ответ `DELETE /api/user/address`). */
+  onClear: () => Promise<boolean>;
 }
 
 interface Draft {
@@ -48,12 +50,30 @@ function toAddress(draft: Draft): UserAddress {
   };
 }
 
-export default function AddressSection({ address, isSaving, onSave }: AddressSectionProps) {
+export default function AddressSection({ address, isSaving, onSave, onClear }: AddressSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<Draft>(() => toDraft(address));
+  const lastSavedRef = useRef(toDraft(address));
+
+  // Внешнее изменение адреса (сохранён с чекаута или очищен) во время
+  // редактирования — пересобираем draft, чтобы не показывать устаревшие поля.
+  useEffect(() => {
+    const current = toDraft(address);
+    const previous = lastSavedRef.current;
+    if (
+      current.street !== previous.street ||
+      current.house !== previous.house ||
+      current.flat !== previous.flat ||
+      current.entrance !== previous.entrance
+    ) {
+      lastSavedRef.current = current;
+      setDraft(current);
+    }
+  }, [address]);
 
   const startEditing = () => {
     setDraft(toDraft(address));
+    lastSavedRef.current = toDraft(address);
     setIsEditing(true);
   };
 
@@ -64,6 +84,10 @@ export default function AddressSection({ address, isSaving, onSave }: AddressSec
   const handleSave = async () => {
     const saved = await onSave(toAddress(draft));
     if (saved) setIsEditing(false);
+  };
+
+  const handleClear = async () => {
+    await onClear();
   };
 
   const setField = (key: 'street' | 'house' | 'flat' | 'entrance', value: string) =>
@@ -165,6 +189,16 @@ export default function AddressSection({ address, isSaving, onSave }: AddressSec
             >
               Изменить
             </button>
+            {formatted && (
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={isSaving}
+                className="text-[11px] font-bold text-stone-400 hover:text-red-600 font-comfortaa cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-wait"
+              >
+                Очистить адрес
+              </button>
+            )}
           </div>
         )}
       </div>

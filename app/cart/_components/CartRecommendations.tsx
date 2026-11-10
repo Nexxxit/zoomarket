@@ -39,7 +39,7 @@ export default function CartRecommendations({ cart, onAdd }: CartRecommendations
         {recommendedProducts.map((product) => (
           <div key={product.id} className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-orange-100/80">
-              <ProductIcon type={product.type} alt={product.name} className="h-8 w-8" />
+              <ProductIcon alt={product.name} className="h-8 w-8" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="line-clamp-2 font-comfortaa text-xs font-bold leading-snug text-stone-900">

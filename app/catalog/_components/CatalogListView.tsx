@@ -27,6 +27,8 @@ export default function CatalogListView({ viewModel }: CatalogListViewProps) {
     onSaleCount,
     backToParam,
     navigateToSlug,
+    updateFilters,
+    resetFilters,
     breadcrumbs,
   } = viewModel;
 
@@ -53,6 +55,15 @@ export default function CatalogListView({ viewModel }: CatalogListViewProps) {
               filters={filters}
               brandFacets={availableBrandsInSubcategory}
               onSaleCount={onSaleCount}
+              onToggleOnSale={() => updateFilters({ onSaleOnly: !filters.onSaleOnly })}
+              onPriceMinChange={(value) => updateFilters({ priceMin: value })}
+              onPriceMaxChange={(value) => updateFilters({ priceMax: value })}
+              onToggleBrand={(name) => updateFilters({
+                brands: filters.brands.includes(name)
+                  ? filters.brands.filter((brand) => brand !== name)
+                  : [...filters.brands, name],
+              })}
+              onReset={resetFilters}
             />
 
           </aside>
@@ -64,7 +75,7 @@ export default function CatalogListView({ viewModel }: CatalogListViewProps) {
 
           {(slug.length >= 2 || isSearchActive) && (
             <motion.div
-              key="category-product-grid-view"
+              key={slug.join('/') || 'search'}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -80,7 +91,11 @@ export default function CatalogListView({ viewModel }: CatalogListViewProps) {
                 />
               )}
 
-              <SortBar count={filteredProducts.length} sortType={filters.sortType} />
+              <SortBar
+                count={filteredProducts.length}
+                sortType={filters.sortType}
+                onSortChange={(sortType) => updateFilters({ sortType })}
+              />
 
               <ProductGrid
                 categoryBaseProducts={categoryBaseProducts}
@@ -88,6 +103,7 @@ export default function CatalogListView({ viewModel }: CatalogListViewProps) {
                 isBrandsCatalog={state.isBrands}
                 backTo={backToParam}
                 onBackToCategory={() => navigateToSlug([slug[0]])}
+                onResetFilters={resetFilters}
               />
 
             </motion.div>

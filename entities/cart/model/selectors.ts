@@ -1,5 +1,9 @@
 import type { CartItem, CheckoutType } from './types';
-import { DELIVERY_COST, FREE_SHIPPING_THRESHOLD, PROMO_CODES } from '@/shared/config/commerce';
+import {
+  DELIVERY_COST,
+  FREE_SHIPPING_THRESHOLD,
+  getPromo,
+} from '@/shared/config/commerce';
 
 export function selectCartCount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0);
@@ -19,8 +23,9 @@ export function selectDeliveryCost(itemsSubtotal: number, checkoutType: Checkout
 }
 
 export function selectPromoDiscount(itemsSubtotal: number, promoCode: string | null): number {
-  const pct = promoCode ? PROMO_CODES[promoCode] : undefined;
-  return pct ? Math.round(itemsSubtotal * pct) : 0;
+  const pct = promoCode ? getPromo(promoCode) : undefined;
+  if (pct === undefined || !Number.isFinite(itemsSubtotal)) return 0;
+  return Math.round(itemsSubtotal * pct);
 }
 
 export function selectGrandTotal(
@@ -28,5 +33,12 @@ export function selectGrandTotal(
   deliveryCost: number,
   promoDiscount: number,
 ): number {
+  if (
+    !Number.isFinite(itemsSubtotal) ||
+    !Number.isFinite(deliveryCost) ||
+    !Number.isFinite(promoDiscount)
+  ) {
+    return 0;
+  }
   return Math.max(0, itemsSubtotal - promoDiscount + deliveryCost);
 }

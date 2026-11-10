@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { CreditCard, Truck, Store, ShieldCheck } from 'lucide-react';
+import { CreditCard, Truck, Store } from 'lucide-react';
 import CartRecommendations from './CartRecommendations';
 import type { CartItem, CheckoutType } from '@/entities/cart';
 import type { Product } from '@/entities/product';
@@ -23,6 +23,7 @@ interface OrderSummaryProps {
   promoInput: string;
   onPromoInputChange: (value: string) => void;
   onApplyPromo: () => void;
+  onRemovePromo?: () => void;
   onAddRecommendation?: (product: Product) => void;
 }
 
@@ -41,6 +42,7 @@ export default function OrderSummary({
   promoInput,
   onPromoInputChange,
   onApplyPromo,
+  onRemovePromo,
   onAddRecommendation,
 }: OrderSummaryProps) {
   const router = useRouter();
@@ -125,7 +127,18 @@ export default function OrderSummary({
             <p className="text-[10px] text-red-500 font-bold leading-tight">{promoError}</p>
           )}
           {promoSuccess && (
-            <p className="text-[10px] text-emerald-600 font-bold leading-tight">{promoSuccess}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[10px] text-emerald-600 font-bold leading-tight">{promoSuccess}</p>
+              {onRemovePromo && (
+                <button
+                  type="button"
+                  onClick={onRemovePromo}
+                  className="text-[10px] font-bold text-stone-400 hover:text-red-600 font-inter cursor-pointer bg-transparent border-0 whitespace-nowrap"
+                >
+                  Отменить промокод
+                </button>
+              )}
+            </div>
           )}
         </div>
 

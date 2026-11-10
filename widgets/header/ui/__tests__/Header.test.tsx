@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from '../Header';
@@ -6,6 +6,8 @@ import { MOCK_PRODUCTS } from '@/entities/product';
 import { CartProvider } from '@/features/cart';
 import { FavoritesProvider } from '@/features/favorites';
 import { AuthProvider } from '@/features/auth';
+
+const push = vi.hoisted(() => vi.fn());
 
 vi.mock('next/image', async () => {
   const { createElement } = await vi.importActual<typeof import('react')>('react');
@@ -16,6 +18,7 @@ vi.mock('next/image', async () => {
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/catalog',
+  useRouter: () => ({ push }),
 }));
 
 function renderHeader() {
@@ -31,6 +34,10 @@ function renderHeader() {
 }
 
 describe('Header interactivity', () => {
+  beforeEach(() => {
+    push.mockClear();
+  });
+
   it('hamburger toggles the navbar mobile menu', async () => {
     const user = userEvent.setup();
     renderHeader();
@@ -67,5 +74,27 @@ describe('Header interactivity', () => {
 
     await user.type(input, 'zzz9999неттакого');
     expect(await screen.findByText('Ничего не найдено')).toBeInTheDocument();
+  });
+
+  it('search Enter navigates to the catalog with ?search=', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const input = screen.getByRole('textbox', { name: 'Поиск по каталогу' });
+
+    await user.type(input, 'ownat');
+    await user.keyboard('{Enter}');
+
+    expect(push).toHaveBeenCalledWith('/catalog?search=ownat');
+  });
+
+  it('"show all results" button navigates to the catalog with ?search=', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    const input = screen.getByRole('textbox', { name: 'Поиск по каталогу' });
+
+    await user.type(input, 'ownat');
+    await user.click(await screen.findByRole('button', { name: 'Показать все результаты поиска' }));
+
+    expect(push).toHaveBeenCalledWith('/catalog?search=ownat');
   });
 });

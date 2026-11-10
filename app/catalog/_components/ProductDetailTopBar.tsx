@@ -40,10 +40,14 @@ function FromAwareBack({ slug }: ProductDetailTopBarProps) {
   const label = getCatalogBackLabel(segments);
 
   const handleBack = () => {
-    router.push(
-      `/catalog/${segments.map(encodeCatalogSlugSegment).join('/')}`,
-      { scroll: false },
-    );
+    const path = `/catalog/${segments.map(encodeCatalogSlugSegment).join('/')}`;
+    // Сохраняем контрактные фильтры (?sort=&min=&max=&brands=&onSale=), чтобы
+    // «Назад» внутри приложения не сбрасывал состояние списка, в отличие от
+    // браузерной кнопки, которая восстанавливает его из URL.
+    const query = new URLSearchParams(searchParams?.toString() ?? '');
+    query.delete('from');
+    const queryStr = query.toString();
+    router.push(queryStr ? `${path}?${queryStr}` : path, { scroll: false });
   };
 
   return <BackButtonView label={label} onBack={handleBack} />;

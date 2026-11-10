@@ -15,7 +15,7 @@ import {
 } from '@/entities/cart';
 import type { Product } from '@/entities/product';
 import { useCart } from '@/features/cart';
-import { PROMO_CODES } from '@/shared/config/commerce';
+import { getPromo } from '@/shared/config/commerce';
 import CartList from './_components/CartList';
 import EmptyCart from './_components/EmptyCart';
 import OrderSummary from './_components/OrderSummary';
@@ -26,7 +26,6 @@ export default function CartPage() {
     cart,
     checkoutType,
     setCheckoutType,
-    pickupAddress,
     addToCart,
     promoCode,
     applyPromo,
@@ -35,7 +34,6 @@ export default function CartPage() {
 
   const [promoInput, setPromoInput] = React.useState('');
   const [promoError, setPromoError] = React.useState<string | null>(null);
-  const [promoSuccess, setPromoSuccess] = React.useState<string | null>(null);
 
   const itemsCount = selectCartCount(cart);
   const itemsSubtotal = selectSubtotal(cart);
@@ -45,19 +43,21 @@ export default function CartPage() {
   const promoDiscount = selectPromoDiscount(itemsSubtotal, promoCode);
   const grandTotal = selectGrandTotal(itemsSubtotal, deliveryCost, promoDiscount);
 
+  // Баннер живёт от применённого кода (единый источник — CartProvider),
+  // поэтому восстановленный после reload промокод тоже показывает баннер.
+  const promoSuccess = promoCode ? 'Промокод применен' : null;
+
   const handleApplyPromo = () => {
     setPromoError(null);
-    setPromoSuccess(null);
     const code = promoInput.trim().toUpperCase();
     if (!code) {
       setPromoError('Введите промокод');
       return;
     }
-    if (code in PROMO_CODES) {
+    if (getPromo(code) !== undefined) {
       applyPromo(code);
-      setPromoSuccess('Промокод применен');
     } else {
-      clearPromo();
+      // Точечный cancel: неверный ввод не затирает уже валидный промокод.
       setPromoError('Неверный промокод');
     }
   };
@@ -105,7 +105,6 @@ export default function CartPage() {
               cart={cart}
               checkoutType={checkoutType}
               itemsSubtotal={itemsSubtotal}
-              pickupAddress={pickupAddress}
             />
 
             <div className="lg:col-span-4 flex flex-col gap-6">
@@ -124,6 +123,7 @@ export default function CartPage() {
                 promoInput={promoInput}
                 onPromoInputChange={setPromoInput}
                 onApplyPromo={handleApplyPromo}
+                onRemovePromo={clearPromo}
                 onAddRecommendation={handleAddRecommendation}
               />
 

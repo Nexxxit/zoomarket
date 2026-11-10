@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, waitFor } from '@testing-library/react';
+import { render, waitFor, act, screen } from '@testing-library/react';
 
 const updateAddress = vi.fn().mockResolvedValue(true);
 let submitOrder: ((values: Record<string, unknown>) => void) | null = null;
@@ -94,7 +94,9 @@ describe('checkout address sync', () => {
   it('saves the delivery address to the profile after the order', async () => {
     render(<CheckoutPage />);
 
-    submitOrder!(fillDeliveryAddress());
+    act(() => {
+      submitOrder!(fillDeliveryAddress());
+    });
 
     await waitFor(() =>
       expect(updateAddress).toHaveBeenCalledWith({
@@ -109,9 +111,13 @@ describe('checkout address sync', () => {
   it('does not save when street or house is missing', async () => {
     render(<CheckoutPage />);
 
-    submitOrder!(fillDeliveryAddress({ house: '  ' }));
+    act(() => {
+      submitOrder!(fillDeliveryAddress({ house: '  ' }));
+    });
 
-    await new Promise((r) => setTimeout(r, 50));
+    await waitFor(() =>
+      expect(screen.getByText('mock-order-success')).toBeInTheDocument(),
+    );
     expect(updateAddress).not.toHaveBeenCalled();
   });
 
@@ -119,9 +125,13 @@ describe('checkout address sync', () => {
     mockUser.address = { street: 'ул. Мира', house: '7' };
     render(<CheckoutPage />);
 
-    submitOrder!(fillDeliveryAddress());
+    act(() => {
+      submitOrder!(fillDeliveryAddress());
+    });
 
-    await new Promise((r) => setTimeout(r, 50));
+    await waitFor(() =>
+      expect(screen.getByText('mock-order-success')).toBeInTheDocument(),
+    );
     expect(updateAddress).not.toHaveBeenCalled();
   });
 
@@ -129,7 +139,9 @@ describe('checkout address sync', () => {
     mockUser.address = { street: 'ул. Мира', house: '7', flat: 'кв. 1' };
     render(<CheckoutPage />);
 
-    submitOrder!(fillDeliveryAddress({ flat: 'кв. 5', entrance: 'под. 2' }));
+    act(() => {
+      submitOrder!(fillDeliveryAddress({ flat: 'кв. 5', entrance: 'под. 2' }));
+    });
 
     await waitFor(() =>
       expect(updateAddress).toHaveBeenCalledWith({
@@ -139,5 +151,21 @@ describe('checkout address sync', () => {
         entrance: 'под. 2',
       }),
     );
+  });
+
+  it('surfaces a failed profile address update without blocking the order', async () => {
+    updateAddress.mockResolvedValueOnce(false);
+    render(<CheckoutPage />);
+
+    act(() => {
+      submitOrder!(fillDeliveryAddress());
+    });
+
+    expect(
+      await screen.findByText('mock-order-success', undefined, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('alert', {}, { timeout: 3000 }),
+    ).toHaveTextContent(/Не удалось обновить адрес/);
   });
 });

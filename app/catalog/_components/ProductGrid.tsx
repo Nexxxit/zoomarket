@@ -11,6 +11,7 @@ interface ProductGridProps {
   isBrandsCatalog: boolean;
   backTo?: string;
   onBackToCategory?: () => void;
+  onResetFilters?: () => void;
 }
 
 export default function ProductGrid({
@@ -19,6 +20,7 @@ export default function ProductGrid({
   isBrandsCatalog,
   backTo,
   onBackToCategory,
+  onResetFilters,
 }: ProductGridProps) {
 
   if (categoryBaseProducts.length === 0) {
@@ -41,6 +43,7 @@ export default function ProductGrid({
         description="Попробуйте смягчить ценовой порог, выбрать другого производителя или сбросить активные фильтры."
         actionLabel="Сбросить фильтры"
         variant="outline"
+        onAction={onResetFilters}
       />
     );
   }

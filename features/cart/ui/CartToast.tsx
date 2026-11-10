@@ -83,7 +83,7 @@ export default function CartToast() {
                     </p>
                     <div className="flex items-center gap-3">
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-stone-50">
-                        <ProductIcon type={toastData.recommendation.type} className="h-10 w-10" />
+                        <ProductIcon className="h-10 w-10" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="line-clamp-2 font-comfortaa text-xs font-bold leading-snug text-stone-900">

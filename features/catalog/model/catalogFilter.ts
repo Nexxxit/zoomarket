@@ -129,7 +129,7 @@ export function selectCategoryBaseProducts(products: Product[], state: CatalogSl
   });
 }
 
-export function buildBrandFacets(products: Product[], state: CatalogSlugState): BrandFacet[] {
+export function buildBrandFacets(products: Product[], state: CatalogSlugState, globalScope = false): BrandFacet[] {
   const brandsMap: Record<string, number> = {};
   products.forEach(p => {
     let matchesScope = false;
@@ -137,6 +137,8 @@ export function buildBrandFacets(products: Product[], state: CatalogSlugState): 
       matchesScope = !state.activeBrandName || p.brand === state.activeBrandName;
     } else if (state.isVet) {
       matchesScope = isVetProduct(p) && matchesVetSubcategory(p, state.subcategoryId);
+    } else if (globalScope) {
+      matchesScope = true;
     } else {
       matchesScope = p.animal === state.animal && (!state.subcategoryId || p.subcategoryId === state.subcategoryId);
     }
@@ -158,13 +160,16 @@ export function hasActiveFilters(filters: FilterCriteria): boolean {
   );
 }
 
-export function countOnSale(products: Product[], state: CatalogSlugState): number {
+export function countOnSale(products: Product[], state: CatalogSlugState, globalScope = false): number {
   return products.filter(p => {
     if (state.isBrands) {
       return (!state.activeBrandName || p.brand === state.activeBrandName) && p.onSale;
     }
     if (state.isVet) {
       return isVetProduct(p) && matchesVetSubcategory(p, state.subcategoryId) && p.onSale;
+    }
+    if (globalScope) {
+      return p.onSale;
     }
     return p.animal === state.animal && (!state.subcategoryId || p.subcategoryId === state.subcategoryId) && p.onSale;
   }).length;

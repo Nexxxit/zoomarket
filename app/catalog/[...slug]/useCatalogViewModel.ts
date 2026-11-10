@@ -23,18 +23,11 @@ import {
   buildCatalogBreadcrumbs,
   resolveCatalogView,
   selectRecentlyViewed,
+  CATALOG_DEFAULT_FILTERS,
+  parseCatalogFiltersFromParams,
+  serializeCatalogFiltersToParams,
 } from '@/features/catalog';
 import type { FilterCriteria } from '@/features/catalog';
-
-const DEMO_FILTERS: FilterCriteria = {
-  searchQuery: '',
-  priceMin: '',
-  priceMax: '',
-  brands: [],
-  onSaleOnly: false,
-  badgeOnly: false,
-  sortType: 'popular',
-};
 
 const DEMO_RECENTLY_VIEWED_IDS: string[] = [];
 
@@ -53,15 +46,71 @@ export function useCatalogViewModel(slug: string[]) {
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const state = React.useMemo(() => parseCatalogSlug(slug), [slug]);
-  const filters = DEMO_FILTERS;
-  const [userSelectedSize, setUserSelectedSize] = React.useState<{ prodId: string; size: string } | null>(null);
+  const slugKey = slug.join('/');
 
-  const isSearchActive = Boolean(filters.searchQuery);
+  const [filters, setFilters] = React.useState<FilterCriteria>(CATALOG_DEFAULT_FILTERS);
+
+  // URL-контракт (?search=&sort=&min=&max=&brands=&onSale=) — источник истины.
+  // Чтение — через useSearchParams в листе CatalogQuerySync (реактивно и к
+  // навигациям роутера, и к popstate); запись — shallow replaceState ниже.
+  const filtersFromQuery = React.useCallback((params: URLSearchParams) => {
+    setFilters((prev) => {
+      const next = parseCatalogFiltersFromParams(params);
+      const same =
+        serializeCatalogFiltersToParams(prev).toString() ===
+        serializeCatalogFiltersToParams(next).toString();
+      return same ? prev : next;
+    });
+  }, []);
+
+  // Пишем только контрактные ключи; чужие параметры (?from= и т.п.) сохраняем.
+  // history.state передаём как есть — обнуление ломает обработку popstate у Next.
+  // Зависит и от slug: при входе на детальную страницу активные фильтры
+  // дописываются в её URL, чтобы «Назад» (in-app и браузером) их сохранил.
+  React.useEffect(() => {
+    const search = new URLSearchParams(window.location.search);
+    for (const key of ['search', 'sort', 'min', 'max', 'brands', 'onSale']) {
+      search.delete(key);
+    }
+    serializeCatalogFiltersToParams(filters).forEach((value, key) => search.set(key, value));
+    const query = search.toString();
+    const url = window.location.pathname + (query ? `?${query}` : '');
+    if (url !== window.location.pathname + window.location.search) {
+      window.history.replaceState(window.history.state, '', url);
+    }
+  }, [filters, slugKey]);
+
+  const updateFilters = React.useCallback((patch: Partial<FilterCriteria>) => {
+    setFilters((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const resetFilters = React.useCallback(() => {
+    setFilters(CATALOG_DEFAULT_FILTERS);
+  }, []);
+
+  // Компенсация скролла на смену slug (не внутри карусели): только когда
+  // реальная навигация сменила slug и пользователь остался выше списка —
+  // иначе не трогаем восстановленную браузером/Next позицию.
+  const lastScrolledSlugRef = React.useRef(slugKey);
+  React.useEffect(() => {
+    if (lastScrolledSlugRef.current === slugKey) return;
+    lastScrolledSlugRef.current = slugKey;
+    const listEl = document.getElementById('large-catalog');
+    if (listEl) {
+      const listTop = listEl.getBoundingClientRect().top + window.scrollY;
+      if (window.scrollY < listTop - 40) {
+        listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (window.scrollY > 0) {
+      window.scrollTo(0, 0);
+    }
+  }, [slugKey]);
 
   const navigateToSlug = React.useCallback((segments: string[]) => {
     const path = `/catalog/${segments.map(encodeCatalogSlugSegment).join('/')}`;
-    router.push(path, { scroll: false });
-  }, [router]);
+    const query = serializeCatalogFiltersToParams(filters).toString();
+    router.push(query ? `${path}?${query}` : path, { scroll: false });
+  }, [router, filters]);
 
   const handleSelectSubcategory = React.useCallback((subId: string, categoryId: string, subSection?: string) => {
     if (subId === 'all') {
@@ -72,6 +121,10 @@ export function useCatalogViewModel(slug: string[]) {
       navigateToSlug([categoryId, subId]);
     }
   }, [navigateToSlug]);
+
+  const [userSelectedSize, setUserSelectedSize] = React.useState<{ prodId: string; size: string } | null>(null);
+
+  const isSearchActive = Boolean(filters.searchQuery);
 
   const activeProduct: Product | null = React.useMemo(
     () => (state.productId ? getProductById(state.productId) : null),
@@ -126,11 +179,14 @@ export function useCatalogViewModel(slug: string[]) {
   }, [state]);
 
   const availableBrandsInSubcategory = React.useMemo(
-    () => buildBrandFacets(getAllProducts(), state),
+    () => buildBrandFacets(getAllProducts(), state, state.slugLength === 0),
     [state],
   );
 
-  const onSaleCount = React.useMemo(() => countOnSale(getAllProducts(), state), [state]);
+  const onSaleCount = React.useMemo(
+    () => countOnSale(getAllProducts(), state, state.slugLength === 0),
+    [state],
+  );
 
   const recentlyViewedProducts = React.useMemo(
     () => selectRecentlyViewed(getAllProducts(), DEMO_RECENTLY_VIEWED_IDS, activeProduct),
@@ -210,6 +266,9 @@ export function useCatalogViewModel(slug: string[]) {
     displayReviews,
     userRating,
     navigateToSlug,
+    filtersFromQuery,
+    updateFilters,
+    resetFilters,
     handleSelectSubcategory,
     handleSelectSize,
     handleAddToCart,

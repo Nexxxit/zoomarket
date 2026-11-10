@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import DeliveryPage from './_components/DeliveryPage';
 
-export default function DeliveryPage() {
-  redirect('/');
+export default function DeliveryRoute() {
+  return <DeliveryPage />;
 }

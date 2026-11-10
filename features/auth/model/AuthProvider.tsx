@@ -6,10 +6,13 @@ import type { OrderSummary } from '@/entities/order';
 import {
   login as loginRequest,
   logout as logoutRequest,
+  fetchCurrentUser,
   fetchOrders,
   updateAddress as updateAddressRequest,
+  removeAddress as removeAddressRequest,
 } from '../api';
 import type { AuthCredentials } from './types';
+import { AuthApiError } from './types';
 import { AuthContext } from './authContext';
 import type { AuthContextValue } from './authContext';
 
@@ -43,51 +46,9 @@ function removeStorage(key: string) {
   }
 }
 
-function normalizeStoredAddress(value: unknown): UserAddress | undefined {
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed ? { street: trimmed, house: '' } : undefined;
-  }
-  if (value && typeof value === 'object') {
-    const candidate = value as Partial<UserAddress>;
-    if (typeof candidate.street === 'string') {
-      return {
-        street: candidate.street,
-        house: typeof candidate.house === 'string' ? candidate.house : '',
-        flat: typeof candidate.flat === 'string' ? candidate.flat : undefined,
-        entrance:
-          typeof candidate.entrance === 'string' ? candidate.entrance : undefined,
-      };
-    }
-  }
-  return undefined;
-}
-
-function parseStoredUser(raw: string | null): UserProfile | null {
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as Partial<UserProfile>;
-    if (
-      parsed &&
-      typeof parsed.id === 'string' &&
-      typeof parsed.name === 'string' &&
-      typeof parsed.phone === 'string'
-    ) {
-      return {
-        id: parsed.id,
-        name: parsed.name,
-        phone: parsed.phone,
-        email: parsed.email,
-        avatar: parsed.avatar ?? '🐱',
-        address: normalizeStoredAddress(parsed.address),
-        role: parsed.role ?? 'customer',
-        registeredAt: parsed.registeredAt ?? new Date().toISOString(),
-      };
-    }
-  } catch (e) {
-    console.error('Error parsing stored user', e);
-  }
-  return null;
+function isUnauthorized(e: unknown): boolean {
+  // 401 от mock-api = сеанс мёртв: чиним локально, без «session error».
+  return e instanceof AuthApiError && e.status === 401;
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -104,18 +65,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const activeUserIdRef = useRef<string | null>(null);
   const addressSavesRef = useRef(0);
 
-  // Гидратация сеанса из localStorage. С реальным бэком здесь был бы
-  // GET /api/auth/me с проверкой токена.
+  const forceLocalLogout = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    setOrders(null);
+    removeStorage(STORAGE_KEYS.token);
+    removeStorage(STORAGE_KEYS.user);
+  }, []);
+
+  // Гидратация сеанса: из localStorage берём только токен, профиль (в т.ч.
+  // role) — из ответа `GET /api/auth/me` (fetchCurrentUser). Нейтральный
+  // storage-пользователь больше не источник истины.
   useEffect(() => {
+    let cancelled = false;
     const timer = setTimeout(() => {
       const storedToken = readStorage(STORAGE_KEYS.token);
-      const storedUser = parseStoredUser(readStorage(STORAGE_KEYS.user));
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(storedUser);
-      }
+      if (!storedToken) return;
+      fetchCurrentUser(storedToken)
+        .then((profile) => {
+          if (cancelled) return;
+          setToken(storedToken);
+          setUser(profile);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          removeStorage(STORAGE_KEYS.token);
+          removeStorage(STORAGE_KEYS.user);
+        });
     }, 0);
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []);
 
   const userId = user?.id ?? null;
@@ -154,7 +135,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(session.token);
       setUser(session.user);
       writeStorage(STORAGE_KEYS.token, session.token);
-      writeStorage(STORAGE_KEYS.user, JSON.stringify(session.user));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не удалось войти. Попробуйте ещё раз.');
     } finally {
@@ -167,6 +147,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoggingOut(true);
     try {
       await logoutRequest(token);
+    } catch (e) {
+      // 401 от mock-logout = выход уже состоялся на сервере — это успех.
+      if (!isUnauthorized(e)) {
+        setError('Не удалось выйти. Локальный сеанс всё равно сброшен.');
+      }
     } finally {
       setToken(null);
       setUser(null);
@@ -189,11 +174,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Сеанс мог смениться (logout/другой вход) во время запроса.
         if (activeUserIdRef.current !== requestedUserId) return false;
         setUser(updated);
-        writeStorage(STORAGE_KEYS.user, JSON.stringify(updated));
         return true;
       } catch (e) {
         if (activeUserIdRef.current === requestedUserId) {
-          setError(e instanceof Error ? e.message : 'Не удалось сохранить адрес.');
+          if (isUnauthorized(e)) {
+            forceLocalLogout();
+            setError('Сеанс истёк — войдите заново.');
+          } else if (e instanceof Error) {
+            setError(e.message);
+          } else {
+            setError('Не удалось сохранить адрес.');
+          }
         }
         return false;
       } finally {
@@ -201,8 +192,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (addressSavesRef.current === 0) setIsSavingAddress(false);
       }
     },
-    [user],
+    [user, forceLocalLogout],
   );
+
+  const clearAddress = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
+    const requestedUserId = user.id;
+    addressSavesRef.current += 1;
+    setIsSavingAddress(true);
+    setError(null);
+    try {
+      const updated = await removeAddressRequest(requestedUserId);
+      if (activeUserIdRef.current !== requestedUserId) return false;
+      setUser(updated);
+      return true;
+    } catch (e) {
+      if (activeUserIdRef.current === requestedUserId) {
+        if (isUnauthorized(e)) {
+          forceLocalLogout();
+          setError('Сеанс истёк — войдите заново.');
+        } else if (e instanceof Error) {
+          setError(e.message);
+        } else {
+          setError('Не удалось очистить адрес.');
+        }
+      }
+      return false;
+    } finally {
+      addressSavesRef.current -= 1;
+      if (addressSavesRef.current === 0) setIsSavingAddress(false);
+    }
+  }, [user, forceLocalLogout]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -216,6 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       updateAddress,
+      clearAddress,
     }),
     [
       user,
@@ -228,6 +249,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       updateAddress,
+      clearAddress,
     ],
   );
 

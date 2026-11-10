@@ -17,6 +17,7 @@ interface ProfileViewProps {
   isLoggingOut: boolean;
   error: string | null;
   onSaveAddress: (address: UserAddress) => Promise<boolean>;
+  onClearAddress: () => Promise<boolean>;
   onLogout: () => void;
 }
 
@@ -28,6 +29,7 @@ export default function ProfileView({
   isLoggingOut,
   error,
   onSaveAddress,
+  onClearAddress,
   onLogout,
 }: ProfileViewProps) {
   return (
@@ -38,7 +40,12 @@ export default function ProfileView({
 
       <ProfileDetailsCard user={user} />
 
-      <AddressSection address={user.address} isSaving={isSavingAddress} onSave={onSaveAddress} />
+      <AddressSection
+        address={user.address}
+        isSaving={isSavingAddress}
+        onSave={onSaveAddress}
+        onClear={onClearAddress}
+      />
 
       <OrderHistorySection orders={orders} loading={ordersLoading} />
 

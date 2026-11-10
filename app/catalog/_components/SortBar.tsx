@@ -1,11 +1,14 @@
 'use client';
 
+import type { CatalogSortType } from '@/features/catalog';
+
 interface SortBarProps {
   count: number;
-  sortType: 'popular' | 'cheap-first' | 'expensive-first';
+  sortType: CatalogSortType;
+  onSortChange: (sortType: CatalogSortType) => void;
 }
 
-export default function SortBar({ count, sortType }: SortBarProps) {
+export default function SortBar({ count, sortType, onSortChange }: SortBarProps) {
   return (
     <div className="flex justify-between items-center text-xs py-2 border-b border-stone-100/60 pb-3">
       <span className="font-semibold font-comfortaa text-stone-500">
@@ -15,7 +18,8 @@ export default function SortBar({ count, sortType }: SortBarProps) {
       <div className="flex items-center gap-2 font-inter text-stone-700">
         <span className="hidden sm:inline text-stone-400">Сортировать по:</span>
         <select
-          defaultValue={sortType}
+          value={sortType}
+          onChange={(e) => onSortChange(e.target.value as CatalogSortType)}
           className="bg-stone-50 border border-stone-200 rounded-xl px-2.5 py-1.5 focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-semibold text-xs animate-none"
         >
           <option value="popular">По популярности</option>

@@ -10,8 +10,8 @@ export interface CatalogViewInput {
 
 /**
  * Единственный источник истины о том, какой вид каталога показать.
- * Поведение 1:1 с оригинальной страницей: detail только при slug === 4
- * и найденном товаре; не найденный товар (в т.ч. slug > 4) остаётся 'list'.
+ * Detail только при slug === 4 и найденном товаре; не найденный товар —
+ * не «list», а 404 (guard в page.tsx/CatalogPage вызывает notFound()).
  */
 export function resolveCatalogView({
   state,

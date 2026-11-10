@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OrderForm } from '..';
 import type { OrderFormSubmission, OrderFormSummary } from '..';
@@ -111,30 +111,50 @@ describe('OrderForm checkout mode', () => {
     expect(screen.getByText('2700 ₽')).toBeInTheDocument();
   });
 
-  it('submits through onSubmit with the native navigation already prevented', () => {
+  it('submits through onSubmit when required fields are filled', async () => {
+    const user = userEvent.setup();
     const onSubmit = vi.fn();
-    const { container } = renderCheckout({ onSubmit });
+    renderCheckout({ onSubmit });
+
+    await user.type(screen.getByLabelText(/^Ваше Имя/), 'Анна');
+    await user.type(screen.getByLabelText(/^Номер телефона/), '+79991234567');
+    await user.type(screen.getByLabelText(/^Улица/), 'Тверская');
+    await user.type(screen.getByLabelText(/^Дом/), '7');
 
     const submitButton = screen.getByRole('button', { name: /Подтвердить и заказать/ });
     expect(submitButton).toHaveAttribute('type', 'submit');
-
-    const form = container.querySelector('form') as HTMLFormElement;
-    expect(fireEvent.submit(form)).toBe(false);
+    await user.click(submitButton);
 
     expect(onSubmit).toHaveBeenCalledOnce();
+  });
+
+  it('does not submit when the phone is empty (native validation)', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderCheckout({ onSubmit });
+
+    await user.type(screen.getByLabelText(/^Ваше Имя/), 'Анна');
+    await user.type(screen.getByLabelText(/^Улица/), 'Тверская');
+    await user.type(screen.getByLabelText(/^Дом/), '7');
+
+    await user.click(screen.getByRole('button', { name: /Подтвердить и заказать/ }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('emits the typed values and the pickup address on submit', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
-    const { container } = renderCheckout({
+    renderCheckout({
       pickupAddress: PICKUP_STORES[1].address,
       onSubmit,
     });
 
     await user.type(screen.getByLabelText(/^Ваше Имя/), 'Анна');
+    await user.type(screen.getByLabelText(/^Номер телефона/), '+79991234567');
     await user.type(screen.getByLabelText(/^Улица/), 'Тверская');
-    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+    await user.type(screen.getByLabelText(/^Дом/), '7');
+    await user.click(screen.getByRole('button', { name: /Подтвердить и заказать/ }));
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -218,11 +238,15 @@ describe('OrderForm request mode', () => {
 
   it('emits district and pet type values on submit', async () => {
     const user = userEvent.setup();
-    const { onSubmit, container } = renderRequest();
+    const { onSubmit } = renderRequest();
 
-    await user.selectOptions(screen.getByLabelText(/^Район доставки/), 'south');
     await user.type(screen.getByLabelText(/^Ваше Имя/), 'Игорь');
-    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+    await user.type(screen.getByLabelText(/^Номер телефона/), '+79991234567');
+    await user.type(screen.getByLabelText(/^Улица/), 'Мира');
+    await user.type(screen.getByLabelText(/^Дом/), '1');
+    await user.selectOptions(screen.getByLabelText(/^Район доставки/), 'south');
+
+    await user.click(screen.getByRole('button', { name: /Заказать бережную доставку/ }));
 
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({

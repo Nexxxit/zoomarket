@@ -76,7 +76,7 @@ const RAW_PRODUCTS: Product[] = [
     rating: 5.0,
     reviews: 212,
     onSale: true,
-    salePct: 25,
+    salePct: 20,
     badge: 'Хит',
     type: 'food',
     animal: 'cat',
@@ -240,7 +240,7 @@ const RAW_PRODUCTS: Product[] = [
   },
   {
     id: '12',
-    name: 'Кожаный двухслойный анатомический регулируемый ошейник с латунными заклепками для собак собак',
+    name: 'Кожаный двухслойный анатомический регулируемый ошейник с латунными заклепками для собак',
     category: 'Аксессуары',
     price: 890,
     rating: 4.6,
@@ -418,7 +418,7 @@ const RAW_PRODUCTS: Product[] = [
     brand: 'Dreamies',
     sizes: ['60 г', '140 г'],
     subcategoryId: 'cat-treat',
-    subSection: 'Подушечки хрустящие'
+    subSection: 'Подушечки с начинкой'
   },
   {
     id: '23',
@@ -466,7 +466,7 @@ const RAW_PRODUCTS: Product[] = [
     brand: 'Cesar',
     sizes: ['100 г'],
     subcategoryId: 'dog-food',
-    subSection: 'Влажный корм'
+    subSection: 'Влажные консервы'
   },
   {
     id: '26',
@@ -484,7 +484,7 @@ const RAW_PRODUCTS: Product[] = [
     brand: 'Merial',
     sizes: ['1 пипетка', '3 пипетки'],
     subcategoryId: 'dog-flea',
-    subSection: 'Капли от клещей'
+    subSection: 'Капли от внешних паразитов'
   },
   {
     id: '27',
@@ -517,7 +517,7 @@ const RAW_PRODUCTS: Product[] = [
     brand: 'Flexi',
     sizes: ['5 метров лента'],
     subcategoryId: 'dog-accessories',
-    subSection: 'Поводки-рулетки'
+    subSection: 'Поводки и рулетки'
   },
   {
     id: '29',
@@ -533,7 +533,7 @@ const RAW_PRODUCTS: Product[] = [
     brand: 'Kong',
     sizes: ['S', 'M', 'L', 'XL'],
     subcategoryId: 'dog-toys',
-    subSection: 'Интеллектуальные игры'
+    subSection: 'Развивающие игры'
   },
   {
     id: '30',
@@ -562,8 +562,8 @@ const RAW_PRODUCTS: Product[] = [
     animal: 'rodent',
     brand: 'Little One',
     sizes: ['900 г', '3 кг'],
-    subcategoryId: 'rodent-cage',
-    subSection: 'Двухэтажные домики'
+    subcategoryId: 'rodent-food',
+    subSection: 'Травяные гранулы'
   },
   {
     id: '32',

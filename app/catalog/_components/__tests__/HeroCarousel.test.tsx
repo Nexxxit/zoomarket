@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { createElement } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HeroCarousel from '../HeroCarousel';
 import HeroCarouselProvider from '../HeroCarouselProvider';
@@ -18,17 +18,18 @@ vi.mock('next/image', () => ({
 }));
 
 // Детерминированные часы: rAF вызывает кадры через мгновенный таймаут, а
-// performance.now() идёт виртуальным шагом. Автопрокрутка не зависит от
-// wall-clock и нагрузки раннера (раньше flaked именно из-за этого).
+// performance.now() идёт виртуальным шагом. pumpFrames прогоняет очередь
+// кадров синхронно внутри act — автопрокрутка не зависит от wall-clock и
+// нагрузки раннера (на полном суите macrotask-цепочка растягивалась).
 let rafClock = 0;
 let rafId = 0;
-const rafPending = new Map<number, ReturnType<typeof setTimeout>>();
+const rafPending = new Map<number, { timer: ReturnType<typeof setTimeout>; cb: FrameRequestCallback }>();
 
 beforeEach(() => {
   rafClock = 0;
   rafId = 0;
   rafPending.clear();
-  vi.stubGlobal('performance', { now: () => rafClock });
+  vi.spyOn(performance, 'now').mockImplementation(() => rafClock);
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
     const id = ++rafId;
     const timer = setTimeout(() => {
@@ -36,13 +37,13 @@ beforeEach(() => {
       rafClock += 16;
       cb(rafClock);
     }, 0);
-    rafPending.set(id, timer);
+    rafPending.set(id, { timer, cb });
     return id;
   });
   vi.stubGlobal('cancelAnimationFrame', (id: number) => {
-    const timer = rafPending.get(id);
-    if (timer) {
-      clearTimeout(timer);
+    const entry = rafPending.get(id);
+    if (entry) {
+      clearTimeout(entry.timer);
       rafPending.delete(id);
     }
   });
@@ -51,13 +52,39 @@ beforeEach(() => {
     unobserve() {}
     disconnect() {}
   });
+  // prefers-reduced-motion: heroSlideDuration === 0, exit/enter завершаются за
+  // кадр — под нагрузкой суита нельзя полагаться на wall-clock 0.65s анимации
+  // (иначе старый слайд остаётся в DOM и getByRole видит два h1).
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    media: query,
+    matches: query.includes('prefers-reduced-motion'),
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    onchange: null,
+    dispatchEvent: () => false,
+  }));
 });
 
 afterEach(() => {
-  rafPending.forEach((timer) => clearTimeout(timer));
+  rafPending.forEach(({ timer }) => clearTimeout(timer));
   rafPending.clear();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
+
+function pumpFrames(count: number) {
+  for (let i = 0; i < count; i++) {
+    const batch = [...rafPending.values()];
+    rafPending.clear();
+    batch.forEach(({ timer }) => clearTimeout(timer));
+    rafClock += 16;
+    act(() => {
+      batch.forEach(({ cb }) => cb(rafClock));
+    });
+  }
+}
 
 function activeHeadingText(): string {
   return screen.getByRole('heading', { level: 1 }).textContent ?? '';
@@ -72,6 +99,11 @@ describe('HeroCarousel', () => {
       </HeroCarouselProvider>,
     );
     expect(activeHeadingText()).toContain('Grandin');
+
+    // 13 кадров по 16мс > 200мс — автопрокрутка обязана сменить слайд;
+    // ещё ~90 кадров дают exit/enter-анимации завершиться по виртуальным часам.
+    pumpFrames(13);
+    pumpFrames(90);
 
     await waitFor(
       () => {

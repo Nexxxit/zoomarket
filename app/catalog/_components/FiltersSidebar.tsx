@@ -10,6 +10,11 @@ interface FiltersSidebarProps {
   filters: FilterCriteria;
   brandFacets: BrandFacet[];
   onSaleCount: number;
+  onToggleOnSale: () => void;
+  onPriceMinChange: (value: string) => void;
+  onPriceMaxChange: (value: string) => void;
+  onToggleBrand: (name: string) => void;
+  onReset: () => void;
 }
 
 function FilterToggleRow({
@@ -17,15 +22,19 @@ function FilterToggleRow({
   leading,
   trailing,
   idleClassName = 'text-stone-700',
+  onClick,
 }: {
   active: boolean;
   leading: React.ReactNode;
   trailing: React.ReactNode;
   idleClassName?: string;
+  onClick: () => void;
 }) {
   return (
     <button
       type="button"
+      onClick={onClick}
+      aria-pressed={active}
       className={cn(
         'w-full flex items-center justify-between p-2 rounded-xl text-xs md:text-sm font-semibold cursor-pointer transition-all border-0',
         active ? 'bg-orange-500/10 text-orange-650 font-bold' : cn('bg-transparent hover:bg-stone-50', idleClassName),
@@ -37,7 +46,16 @@ function FilterToggleRow({
   );
 }
 
-export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: FiltersSidebarProps) {
+export default function FiltersSidebar({
+  filters,
+  brandFacets,
+  onSaleCount,
+  onToggleOnSale,
+  onPriceMinChange,
+  onPriceMaxChange,
+  onToggleBrand,
+  onReset,
+}: FiltersSidebarProps) {
   const isResetVisible = hasActiveFilters(filters);
 
   return (
@@ -52,6 +70,7 @@ export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: Fi
           {isResetVisible && (
             <button
               type="button"
+              onClick={onReset}
               className="text-xs font-bold text-red-500 hover:text-red-700 font-comfortaa uppercase tracking-wider cursor-pointer bg-transparent border-0"
             >
               Сбросить
@@ -65,6 +84,7 @@ export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: Fi
           <div className="space-y-1.5 font-inter">
             <FilterToggleRow
               active={filters.onSaleOnly}
+              onClick={onToggleOnSale}
               leading={
                 <>
                   <Percent className="w-4 h-4 opacity-75" />
@@ -84,11 +104,19 @@ export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: Fi
             <input
               type="number"
               placeholder="От"
+              aria-label="Цена от"
+              value={filters.priceMin}
+              onChange={(e) => onPriceMinChange(e.target.value)}
+              min={0}
               className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-medium"
             />
             <input
               type="number"
               placeholder="До"
+              aria-label="Цена до"
+              value={filters.priceMax}
+              onChange={(e) => onPriceMaxChange(e.target.value)}
+              min={0}
               className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs md:text-sm focus:outline-hidden focus:border-orange-500 focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 font-medium"
             />
           </div>
@@ -105,6 +133,7 @@ export default function FiltersSidebar({ filters, brandFacets, onSaleCount }: Fi
                   key={brand.name}
                   active={isSelected}
                   idleClassName="text-stone-600"
+                  onClick={() => onToggleBrand(brand.name)}
                   leading={
                     <>
                       <div className={cn(

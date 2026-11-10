@@ -10,7 +10,6 @@ interface CartListProps {
   cart: CartItem[];
   checkoutType: CheckoutType;
   itemsSubtotal: number;
-  pickupAddress: string;
 }
 
 export default function CartList({ cart, checkoutType, itemsSubtotal }: CartListProps) {

@@ -23,7 +23,6 @@ export default function FavoritesPage() {
   const sessionProducts = MOCK_PRODUCTS.filter((product) =>
     displayFavoriteIds.includes(product.id)
   );
-  const activeFavoriteCount = favorites.length;
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow">
@@ -41,7 +40,7 @@ export default function FavoritesPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-comfortaa tracking-tight inline-flex items-center gap-2">
             <span>Избранные товары</span>
             <span className="text-sm sm:text-base text-stone-400 font-sans font-bold">
-              ({activeFavoriteCount})
+              ({sessionProducts.length})
             </span>
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-inter">

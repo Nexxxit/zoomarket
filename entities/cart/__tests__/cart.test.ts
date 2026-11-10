@@ -53,6 +53,17 @@ describe('cart operations', () => {
     expect(next[0].size).toBe('4 кг');
   });
 
+  it('removes all sizes of the product when size is omitted', () => {
+    const items: CartItem[] = [
+      { ...seed, category: 'Корма', quantity: 1, size: '1 кг' },
+      { ...seed, category: 'Корма', quantity: 1, size: '4 кг' },
+      { ...seed, id: 'y', name: 'Other', category: 'Корма', quantity: 1, size: '1 кг' },
+    ];
+    const next = removeItemFromCart(items, 'x');
+    expect(next).toHaveLength(1);
+    expect(next[0].id).toBe('y');
+  });
+
   it('changes quantity only for the exact id+size row', () => {
     const items: CartItem[] = [
       { ...seed, category: 'Корма', quantity: 1, size: '1 кг' },

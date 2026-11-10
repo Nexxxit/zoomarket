@@ -15,9 +15,10 @@ import { AuthApiError } from '../model/types';
  *   200: { token, user } | 400: { message }
  * - POST  /api/auth/logout       → без тела, Authorization: Bearer <token>; 204
  * - GET   /api/auth/me           → по токену возвращает UserProfile
- *   (мок восстанавливает профиль из localStorage)
+ *   (мок восстанавливает профиль из mock-«БД»)
  * - GET   /api/user/orders       → OrderSummary[]
  * - PATCH /api/user/address      → { address } → обновлённый UserProfile
+ * - DELETE /api/user/address     → обновлённый UserProfile без адреса
  */
 
 const MOCK_LATENCY_MS = 500;
@@ -30,8 +31,55 @@ export function normalizePhone(phone: string): string {
   return phone.replace(/\D/g, '');
 }
 
-/** Мок-«БД»: mutable, чтобы PATCH адреса переживал перезапросы в сессии. */
-let mockUserStore: UserProfile[] = MOCK_USER_PROFILES.map((user) => ({ ...user }));
+const STORE_KEY = 'aibolit_mock_user_store';
+
+function seedUserStore(): UserProfile[] {
+  return MOCK_USER_PROFILES.map((user) => ({ ...user }));
+}
+
+function loadUserStore(): UserProfile[] {
+  if (typeof window === 'undefined') return seedUserStore();
+  try {
+    const raw = window.localStorage.getItem(STORE_KEY);
+    if (!raw) return seedUserStore();
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return seedUserStore();
+    const users = parsed.filter(
+      (user): user is UserProfile =>
+        typeof user === 'object' &&
+        user !== null &&
+        typeof (user as UserProfile).id === 'string' &&
+        typeof (user as UserProfile).name === 'string' &&
+        typeof (user as UserProfile).phone === 'string' &&
+        typeof (user as UserProfile).role === 'string',
+    );
+    return users.length > 0 ? users : seedUserStore();
+  } catch {
+    return seedUserStore();
+  }
+}
+
+/**
+ * Мок-«БД»: mutable, чтобы PATCH адреса переживал перезапросы в сессии;
+ * снапшотится в localStorage, чтобы restore по токену (fetchCurrentUser)
+ * работал и после перезагрузки страницы.
+ */
+let mockUserStore: UserProfile[] = loadUserStore();
+
+function saveUserStore(next: UserProfile[]) {
+  mockUserStore = next;
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(STORE_KEY, JSON.stringify(next));
+  } catch {
+    // хранилище недоступно — мок живёт только в памяти сессии
+  }
+}
+
+/** Для тестов: полный сброс мок-«БД» (иначе тесты зависят от порядка). */
+export function resetMockUserStore(): void {
+  saveUserStore(seedUserStore());
+}
 
 /** `POST /api/auth/login`: ищет пользователя по телефону, иначе создаёт нового. */
 export async function login(credentials: AuthCredentials): Promise<AuthSession> {
@@ -60,11 +108,11 @@ export async function login(credentials: AuthCredentials): Promise<AuthSession> 
       role: 'customer',
       registeredAt: new Date().toISOString(),
     };
-    mockUserStore = [...mockUserStore, user];
+    saveUserStore([...mockUserStore, user]);
   } else if (user.name !== name) {
     user = { ...user, name };
-    mockUserStore = mockUserStore.map((candidate) =>
-      candidate.id === user!.id ? user! : candidate,
+    saveUserStore(
+      mockUserStore.map((candidate) => (candidate.id === user!.id ? user! : candidate)),
     );
   }
 
@@ -80,6 +128,19 @@ export async function logout(token: string | null): Promise<void> {
   if (!token) {
     throw new AuthApiError(401, 'Сессия не найдена — войдите заново.');
   }
+}
+
+/**
+ * `GET /api/auth/me`: профиль по токену. Источник истины для restore —
+ * `role` и адрес берутся отсюда, а не из localStorage.
+ */
+export async function fetchCurrentUser(token: string): Promise<UserProfile> {
+  const userId = token.startsWith('mock-token-') ? token.slice('mock-token-'.length) : null;
+  const user = userId ? mockUserStore.find((candidate) => candidate.id === userId) : undefined;
+  if (!user) {
+    throw new AuthApiError(401, 'Сессия не найдена — войдите заново.');
+  }
+  return { ...user };
 }
 
 /** `GET /api/user/orders` — заказы текущего пользователя, новые сверху. */
@@ -109,7 +170,22 @@ export async function updateAddress(userId: string, address: UserAddress): Promi
   };
 
   const updated: UserProfile = { ...mockUserStore[index], address: normalized };
-  mockUserStore = mockUserStore.map((user, i) => (i === index ? updated : user));
+  saveUserStore(mockUserStore.map((user, i) => (i === index ? updated : user)));
+
+  return { ...updated };
+}
+
+/** `DELETE /api/user/address` → обновлённый UserProfile без адреса. */
+export async function removeAddress(userId: string): Promise<UserProfile> {
+  await delay(MOCK_LATENCY_MS);
+
+  const index = mockUserStore.findIndex((user) => user.id === userId);
+  if (index === -1) {
+    throw new AuthApiError(404, 'Пользователь не найден.');
+  }
+
+  const updated: UserProfile = { ...mockUserStore[index], address: undefined };
+  saveUserStore(mockUserStore.map((user, i) => (i === index ? updated : user)));
 
   return { ...updated };
 }

@@ -71,7 +71,7 @@ export default function Header() {
                 <span className="font-semibold tracking-tight">{CONTACT_PHONE}</span>
               </a>
               <a
-                href="#callback"
+                href={CONTACT_PHONE_HREF}
                 className="text-orange-500 hover:text-orange-400 font-medium whitespace-nowrap transition-colors"
               >
                 Заказать звонок
@@ -82,7 +82,7 @@ export default function Header() {
       </div>
 
       <header className="sticky top-0 z-50 w-full">
-        <div className="transition-colors duration-300 backdrop-blur-md border-b border-stone-200/30 bg-white/95 hover:bg-white">
+        <div className="transition-colors duration-300 backdrop-blur-md border-b border-stone-200/30 bg-transparent hover:bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between gap-3 md:gap-4">
 
@@ -106,7 +106,7 @@ export default function Header() {
             </Link>
 
             <div className="flex-1 relative z-50">
-              <form onSubmit={(e) => e.preventDefault()} className="w-full relative flex items-center">
+              <form onSubmit={(e) => { e.preventDefault(); search.goToResults(); }} className="w-full relative flex items-center">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                   <Search className="h-4 w-4 text-stone-400" />
                 </div>
@@ -184,6 +184,7 @@ export default function Header() {
                       <div className="mt-1.5 pb-1 px-1">
                         <button
                           type="button"
+                          onClick={search.goToResults}
                           className="w-full text-center py-2 bg-orange-500 hover:bg-orange-600 text-white font-extrabold font-comfortaa text-xs rounded-xl transition-all cursor-pointer border-none shadow-xs"
                         >
                           Показать все результаты поиска

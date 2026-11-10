@@ -11,6 +11,12 @@
   --spacing-header: 114px;
 }
 
+/* Место под скроллбар зарезервировано всегда: при overflow:hidden (модалки/drawer)
+   ширина layout не меняется и страница не «прыгает» */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   font-family: var(--font-inter), sans-serif;
 }

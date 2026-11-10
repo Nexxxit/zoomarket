@@ -47,6 +47,15 @@ describe('cart selectors', () => {
     expect(selectPromoDiscount(10000, null)).toBe(0);
   });
 
+  it('ignores prototype keys instead of producing NaN', () => {
+    // «constructor in PROMO_CODES» давал true, а Math.round(subtotal * Function) — NaN.
+    expect(selectPromoDiscount(10000, 'constructor')).toBe(0);
+    expect(selectPromoDiscount(10000, 'toString')).toBe(0);
+    expect(selectPromoDiscount(10000, '__proto__')).toBe(0);
+    expect(selectGrandTotal(1000, 290, NaN)).toBe(0);
+    expect(selectGrandTotal(NaN, 290, 0)).toBe(0);
+  });
+
   it('clamps grand total at zero when discount exceeds subtotal', () => {
     expect(selectGrandTotal(1000, 290, 1500)).toBe(0);
     expect(selectGrandTotal(10000, 0, 1500)).toBe(8500);

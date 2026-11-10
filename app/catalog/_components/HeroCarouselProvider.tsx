@@ -78,7 +78,8 @@ export default function HeroCarouselProvider({
 
   const { attachFill, notifyManualSwitch } = useHeroAutoplay({
     // Прокрутка активна, только когда карусель смонтирована и не на паузе:
-    // на страницах без героя (detail) rAF-цикл не крутится.
+    // useHeroAutoplay при !enabled не планирует кадры вовсе — на страницах
+    // без героя (detail) rAF-цикл не крутится.
     enabled: heroMounted && !autoplayPaused,
     onAdvance: autoAdvance,
     autoplayMs,

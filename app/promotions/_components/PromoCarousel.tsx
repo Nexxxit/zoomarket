@@ -1,71 +1,82 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { Calendar, Gift, Percent, Sparkles } from 'lucide-react';
 import { renderPromoLogo } from './promoLogo';
 
-const currentSlide = 0;
+const AUTOPLAY_MS = 6000;
+
+const logoIllustration = renderPromoLogo(
+  'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40',
+  160
+);
+
+const slides = [
+  {
+    id: 1,
+    badge: "Грандиозный Сейл",
+    badgeBg: "bg-orange-500",
+    badgeIcon: <Percent className="w-3.5 h-3.5" />,
+    title: (
+      <>
+        Суперскидки до –30% <br /> на здоровье лапок!
+      </>
+    ),
+    subtitle: "Сроки акции ограничены! Дарите питомцам заботу по сниженным ценам. Вся линейка сертифицирована.",
+    expiration: "Действует до 30 июня 2026 г.",
+    expireBg: "bg-orange-100 text-orange-800 border-orange-200",
+    background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+    borderClass: 'border-orange-100',
+    illustration: logoIllustration
+  },
+  {
+    id: 2,
+    badge: "Экспресс-Доставка",
+    badgeBg: "bg-emerald-600",
+    badgeIcon: <Gift className="w-3.5 h-3.5" />,
+    title: (
+      <>
+        Бесплатная доставка <br /> при заказе от 1500 ₽!
+      </>
+    ),
+    subtitle: "Привезем прямо к вашей двери со скоростью виляния хвостика. Качественная упаковка и бережное отношение.",
+    expiration: "Постоянная акция зоомаркета",
+    expireBg: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+    borderClass: 'border-emerald-100',
+    illustration: logoIllustration
+  },
+  {
+    id: 3,
+    badge: "Время играть",
+    badgeBg: "bg-sky-500",
+    badgeIcon: <Sparkles className="w-3.5 h-3.5" />,
+    title: (
+      <>
+        Купи игрушку — <br /> верни хвостику радость!
+      </>
+    ),
+    subtitle: "При покупке развивающих интерактивных игрушек скидка 20% на весь ассортимент. Питомцы будут в восторге!",
+    expiration: "Действует до 15 июля 2026 г.",
+    expireBg: "bg-sky-100 text-sky-800 border-sky-200",
+    background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
+    borderClass: 'border-sky-100',
+    illustration: logoIllustration
+  }
+];
 
 export default function PromoCarousel() {
-  const logoIllustration = renderPromoLogo(
-    'w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40',
-    160
-  );
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const shouldReduceMotion = useReducedMotion();
 
-  const slides = [
-    {
-      id: 1,
-      badge: "Грандиозный Сейл",
-      badgeBg: "bg-orange-500",
-      badgeIcon: <Percent className="w-3.5 h-3.5" />,
-      title: (
-        <>
-          Суперскидки до –30% <br /> на здоровье лапок!
-        </>
-      ),
-      subtitle: "Сроки акции ограничены! Дарите питомцам заботу по сниженным ценам. Вся линейка сертифицирована.",
-      expiration: "Действует до 30 июня 2026 г.",
-      expireBg: "bg-orange-100 text-orange-800 border-orange-200",
-      background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
-      borderClass: 'border-orange-100',
-      illustration: logoIllustration
-    },
-    {
-      id: 2,
-      badge: "Экспресс-Доставка",
-      badgeBg: "bg-emerald-600",
-      badgeIcon: <Gift className="w-3.5 h-3.5" />,
-      title: (
-        <>
-          Бесплатная доставка <br /> при заказе от 1500 ₽!
-        </>
-      ),
-      subtitle: "Привезем прямо к вашей двери со скоростью виляния хвостика. Качественная упаковка и бережное отношение.",
-      expiration: "Постоянная акция зоомаркета",
-      expireBg: "bg-emerald-100 text-emerald-800 border-emerald-200",
-      background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
-      borderClass: 'border-emerald-100',
-      illustration: logoIllustration
-    },
-    {
-      id: 3,
-      badge: "Время играть",
-      badgeBg: "bg-sky-500",
-      badgeIcon: <Sparkles className="w-3.5 h-3.5" />,
-      title: (
-        <>
-          Купи игрушку — <br /> верни хвостику радость!
-        </>
-      ),
-      subtitle: "При покупке развивающих интерактивных игрушек скидка 20% на весь ассортимент. Питомцы будут в восторге!",
-      expiration: "Действует до 15 июля 2026 г.",
-      expireBg: "bg-sky-100 text-sky-800 border-sky-200",
-      background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)',
-      borderClass: 'border-sky-100',
-      illustration: logoIllustration
-    }
-  ];
+  React.useEffect(() => {
+    if (shouldReduceMotion) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, AUTOPLAY_MS);
+    return () => clearInterval(timer);
+  }, [shouldReduceMotion]);
 
   return (
     <>
@@ -114,10 +125,12 @@ export default function PromoCarousel() {
             <button
               key={idx}
               type="button"
+              onClick={() => setCurrentSlide(idx)}
               className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer border-0 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-orange-500/40 focus-visible:ring-offset-1 ${
                 isActive ? 'w-8 bg-orange-500 shadow-xs' : 'w-2.5 bg-stone-300 hover:bg-stone-400'
               }`}
               aria-label={`Слайд ${idx + 1}`}
+              aria-current={isActive ? 'true' : undefined}
             />
           );
         })}

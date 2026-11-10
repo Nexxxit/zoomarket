@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = React.useState('');
   const [orderTime, setOrderTime] = React.useState('');
   const [orderTotal, setOrderTotal] = React.useState(0);
+  const [addressSaveError, setAddressSaveError] = React.useState<string | null>(null);
 
   const orderPlaced = submittedOrder !== null;
 
@@ -43,6 +44,10 @@ export default function CheckoutPage() {
   const deliveryCost = selectDeliveryCost(itemsSubtotal, checkoutType);
   const promoDiscount = selectPromoDiscount(itemsSubtotal, promoCode);
   const grandTotal = selectGrandTotal(itemsSubtotal, deliveryCost, promoDiscount);
+
+  if (cart.length === 0 && !orderPlaced) {
+    return null;
+  }
 
   const handlePlaceOrder = (values: OrderFormSubmission) => {
     setPurchasedItems([...cart]);
@@ -70,7 +75,13 @@ export default function CheckoutPage() {
         user.address?.house === house &&
         user.address?.flat === flat &&
         user.address?.entrance === entrance;
-      if (!sameAsProfile) void updateAddress(address);
+      if (!sameAsProfile) {
+        void updateAddress(address).then((saved) => {
+          if (!saved) {
+            setAddressSaveError('Не удалось обновить адрес в профиле.');
+          }
+        });
+      }
     }
 
     clearCart();
@@ -80,6 +91,23 @@ export default function CheckoutPage() {
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow">
+
+      {addressSaveError && (
+        <div
+          role="alert"
+          className="mb-4 flex items-start justify-between gap-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-inter rounded-xl px-4 py-3"
+        >
+          <span>{addressSaveError}</span>
+          <button
+            type="button"
+            onClick={() => setAddressSaveError(null)}
+            aria-label="Скрыть предупреждение"
+            className="font-bold text-amber-600 hover:text-amber-800 cursor-pointer bg-transparent border-0"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
         <AnimatePresence mode="wait">
           {!orderPlaced ? (
@@ -121,6 +149,7 @@ export default function CheckoutPage() {
           ) : (
 
             <OrderSuccess
+              key="success"
               checkoutType={checkoutType}
               {...submittedOrder}
               orderId={orderId}

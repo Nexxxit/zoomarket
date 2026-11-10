@@ -4,6 +4,8 @@ import React from 'react';
 
 export const HERO_AUTOPLAY_MS = 7000;
 export const HERO_USER_HOLD_MS = 10000;
+/** Кап для dt: после фриза вкладки rAF отдаёт гигантский шаг — не должны «проглатывать» слайд. */
+const MAX_FRAME_DT_MS = 100;
 
 interface UseHeroAutoplayOptions {
   enabled: boolean;
@@ -14,15 +16,10 @@ interface UseHeroAutoplayOptions {
 
 export function useHeroAutoplay({ enabled, onAdvance, autoplayMs }: UseHeroAutoplayOptions) {
   const fillElRef = React.useRef<HTMLSpanElement | null>(null);
-  const enabledRef = React.useRef(enabled);
   const onAdvanceRef = React.useRef(onAdvance);
   const holdingRef = React.useRef(false);
   const elapsedRef = React.useRef(0);
   const autoplayMsRef = React.useRef(autoplayMs ?? HERO_AUTOPLAY_MS);
-
-  React.useEffect(() => {
-    enabledRef.current = enabled;
-  }, [enabled]);
 
   React.useEffect(() => {
     onAdvanceRef.current = onAdvance;
@@ -58,20 +55,20 @@ export function useHeroAutoplay({ enabled, onAdvance, autoplayMs }: UseHeroAutop
 
   React.useEffect(() => {
     if (!enabled) {
+      // Планирование кадров полностью останавливается: без mounted/с поиском
+      // rAF-цикл не крутится и не грузит CPU на чужих страницах.
       elapsedRef.current = 0;
       holdingRef.current = false;
+      return;
     }
-  }, [enabled]);
 
-  React.useEffect(() => {
     let raf = 0;
     let last = performance.now();
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
-      const dt = now - last;
+      const dt = Math.min(Math.max(now - last, 0), MAX_FRAME_DT_MS);
       last = now;
-      if (!enabledRef.current) return;
 
       elapsedRef.current += dt;
       const limit = holdingRef.current ? HERO_USER_HOLD_MS : autoplayMsRef.current;
@@ -92,7 +89,7 @@ export function useHeroAutoplay({ enabled, onAdvance, autoplayMs }: UseHeroAutop
 
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [applyFill]);
+  }, [enabled, applyFill]);
 
   return { attachFill, notifyManualSwitch };
 }

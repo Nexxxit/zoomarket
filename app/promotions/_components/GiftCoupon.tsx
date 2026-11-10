@@ -8,14 +8,14 @@ export default function GiftCoupon() {
           🎁
         </div>
         <div className="space-y-1">
-          <h3 className="text-base sm:text-lg font-bold font-comfortaa text-green-950">Подарок при покупке корма!</h3>
+          <h3 className="text-base sm:text-lg font-bold font-comfortaa text-green-950">Скидка на весь заказ промокодом!</h3>
           <p className="text-xs sm:text-sm text-green-800 font-inter max-w-xl">
-            Купите любой сухой корм для котят или щенков от 1000 ₽ и получите успокаивающие витаминные лакомства в подарок.
+            Введите промокод в корзине — и получите скидку 10% на весь заказ, включая корма для котят и щенков.
           </p>
         </div>
       </div>
       <div className="relative font-comfortaa bg-white py-3 px-6 rounded-2xl border-2 border-dashed border-green-500 font-black text-green-700 tracking-wider text-sm shadow-xs">
-        ПРОМОКОД: AIBOLIT2026
+        ПРОМОКОД: AIBOLIT10
       </div>
     </section>
   );

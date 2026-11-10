@@ -27,4 +27,9 @@ export { buildCatalogBreadcrumbs } from './model/catalogBreadcrumbs';
 export type { CatalogBreadcrumbsInput } from './model/catalogBreadcrumbs';
 export { resolveCatalogView } from './model/catalogView';
 export type { CatalogView, CatalogViewInput } from './model/catalogView';
+export {
+  CATALOG_DEFAULT_FILTERS,
+  parseCatalogFiltersFromParams,
+  serializeCatalogFiltersToParams,
+} from './model/catalogUrlState';
 export { selectRecentlyViewed } from './model/recentlyViewed';

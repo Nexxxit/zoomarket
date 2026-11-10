@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import CatalogPage from './CatalogPage';
 import CatalogSkeleton from '../_components/CatalogSkeleton';
 import { CATALOG_STRUCTURE } from '@/entities/catalog';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { MOCK_PRODUCTS, getProductById } from '@/entities/product';
 import { parseCatalogSlug } from '@/features/catalog';
 
 interface CatalogProps {
@@ -19,7 +19,6 @@ export async function generateStaticParams() {
     if (group && group.subcategories) {
       group.subcategories.forEach((sub) => {
         paths.push({ slug: [animal, sub.id] });
-        paths.push({ slug: [animal, sub.id, 'all'] });
         if (sub.subSections) {
           sub.subSections.forEach((sec) => {
             paths.push({ slug: [animal, sub.id, sec] });
@@ -59,7 +58,11 @@ export async function generateStaticParams() {
 
 async function CatalogRoute({ params }: CatalogProps) {
   const { slug = [] } = await params;
-  if (slug.length > 0 && !parseCatalogSlug(slug).section) {
+  const state = parseCatalogSlug(slug);
+  if (slug.length > 0 && !state.section) {
+    notFound();
+  }
+  if (state.slugLength === 4 && state.productId && !getProductById(state.productId)) {
     notFound();
   }
   return <CatalogPage slug={slug} />;

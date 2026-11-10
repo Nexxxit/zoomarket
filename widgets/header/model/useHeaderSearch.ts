@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MOCK_PRODUCTS } from '@/entities/product';
 import type { Product } from '@/entities/product';
 
@@ -15,9 +16,11 @@ export interface HeaderSearchState {
   open: () => void;
   close: () => void;
   reset: () => void;
+  goToResults: () => void;
 }
 
 export function useHeaderSearch(): HeaderSearchState {
+  const router = useRouter();
   const [query, setQueryValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
@@ -52,6 +55,11 @@ export function useHeaderSearch(): HeaderSearchState {
     setQueryValue('');
     setIsFocused(false);
   }, []);
+  const goToResults = useCallback(() => {
+    const q = query.trim();
+    setIsFocused(false);
+    if (q) router.push(`/catalog?search=${encodeURIComponent(q)}`);
+  }, [query, router]);
 
   return {
     query,
@@ -62,5 +70,6 @@ export function useHeaderSearch(): HeaderSearchState {
     open,
     close,
     reset,
+    goToResults,
   };
 }

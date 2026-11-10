@@ -1,15 +1,17 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AuthDrawer from '../AuthDrawer';
 import { AuthProvider } from '../../model/AuthProvider';
+import { resetMockUserStore } from '../../api';
 
-function renderDrawer() {
-  return render(
+function renderDrawer(onClose = vi.fn()) {
+  const result = render(
     <AuthProvider>
-      <AuthDrawer open />
+      <AuthDrawer open onClose={onClose} />
     </AuthProvider>,
   );
+  return { ...result, onClose };
 }
 
 async function loginAsDemo(user: ReturnType<typeof userEvent.setup>) {
@@ -19,6 +21,11 @@ async function loginAsDemo(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('AuthDrawer auth flow (mock API)', () => {
+  beforeEach(() => {
+    resetMockUserStore();
+    localStorage.clear();
+  });
+
   afterEach(() => {
     localStorage.clear();
   });
@@ -41,6 +48,21 @@ describe('AuthDrawer auth flow (mock API)', () => {
       await screen.findByText(/Телефон должен содержать 11 цифр/, undefined, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Личный кабинет')).toBeNull();
+  });
+
+  it('exposes the panel as a modal dialog', () => {
+    renderDrawer();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAccessibleName('Вход в Айболит');
+  });
+
+  it('closes on Escape', async () => {
+    const user = userEvent.setup();
+    const { onClose } = renderDrawer();
+
+    await user.keyboard('{Escape}');
+    expect(onClose).toHaveBeenCalledOnce();
   });
 
   it('locks background scroll while open and unlocks on close', () => {
@@ -94,6 +116,20 @@ describe('AuthDrawer auth flow (mock API)', () => {
     ).toBeInTheDocument();
   });
 
+  it('clears the delivery address through the mock DELETE endpoint', async () => {
+    const user = userEvent.setup();
+    renderDrawer();
+
+    await loginAsDemo(user);
+    await screen.findByText('Заказ № 582914', undefined, { timeout: 3000 });
+
+    await user.click(screen.getByRole('button', { name: 'Очистить адрес' }));
+
+    expect(
+      await screen.findByText(/Адрес не указан/, undefined, { timeout: 3000 }),
+    ).toBeInTheDocument();
+  });
+
   it('logs out back to the login form', async () => {
     const user = userEvent.setup();
     renderDrawer();
@@ -106,27 +142,47 @@ describe('AuthDrawer auth flow (mock API)', () => {
     expect(await screen.findByText('Вход в Айболит', undefined, { timeout: 3000 })).toBeInTheDocument();
   });
 
-  it('hydrates a legacy session whose address was a plain string', async () => {
-    localStorage.setItem('aibolit_auth_token', 'mock-token-u-legacy');
+  it('restores the session from GET /api/auth/me, not from stored user JSON', async () => {
+    localStorage.setItem('aibolit_auth_token', 'mock-token-u-demo-1');
     localStorage.setItem(
       'aibolit_auth_user',
       JSON.stringify({
-        id: 'u-legacy',
-        name: 'Старый Пользователь',
-        phone: '+7 (999) 555-55-55',
-        avatar: '🐹',
-        address: 'ул. Мира',
+        id: 'u-demo-1',
+        name: 'Подставное Имя',
+        phone: '+7 (000) 000-00-00',
+        avatar: '😈',
+        role: 'admin',
+        address: { street: 'ул. Хакера', house: '1' },
         registeredAt: '2024-01-01T00:00:00.000Z',
       }),
     );
 
     renderDrawer();
 
-    expect(await screen.findByText('ул. Мира', undefined, { timeout: 3000 })).toBeInTheDocument();
+    expect(await screen.findByText('Личный кабинет', undefined, { timeout: 3000 })).toBeInTheDocument();
+    expect(screen.getByText('Василий Иванович')).toBeInTheDocument();
+    expect(screen.queryByText('Подставное Имя')).toBeNull();
+    expect(screen.getByText('ул. Александра Невского, д. 14Б, кв. 102')).toBeInTheDocument();
+    expect(screen.queryByText('ул. Хакера')).toBeNull();
+  });
 
-    const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: 'Изменить' }));
-    expect(screen.getByLabelText(/^Улица/)).toHaveValue('ул. Мира');
-    expect(screen.getByLabelText(/^Дом/)).toHaveValue('');
+  it('drops a session whose token is unknown to the API', async () => {
+    localStorage.setItem('aibolit_auth_token', 'mock-token-u-ghost');
+    localStorage.setItem(
+      'aibolit_auth_user',
+      JSON.stringify({
+        id: 'u-ghost',
+        name: 'Призрак',
+        phone: '+7 (999) 404-04-04',
+        avatar: '👻',
+        role: 'customer',
+        registeredAt: '2024-01-01T00:00:00.000Z',
+      }),
+    );
+
+    renderDrawer();
+
+    expect(await screen.findByText('Вход в Айболит', undefined, { timeout: 3000 })).toBeInTheDocument();
+    expect(localStorage.getItem('aibolit_auth_token')).toBeNull();
   });
 });

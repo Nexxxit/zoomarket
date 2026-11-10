@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../model/authContext';
 import DrawerHeader from './DrawerHeader';
@@ -11,6 +11,24 @@ interface AuthDrawerProps {
   open?: boolean;
 
   onClose?: () => void;
+}
+
+let scrollLockCount = 0;
+let savedBodyOverflow = '';
+
+function lockBodyScroll() {
+  scrollLockCount += 1;
+  if (scrollLockCount === 1) {
+    savedBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function unlockBodyScroll() {
+  scrollLockCount = Math.max(0, scrollLockCount - 1);
+  if (scrollLockCount === 0) {
+    document.body.style.overflow = savedBodyOverflow;
+  }
 }
 
 export default function AuthDrawer({ open = false, onClose }: AuthDrawerProps) {
@@ -25,16 +43,34 @@ export default function AuthDrawer({ open = false, onClose }: AuthDrawerProps) {
     login,
     logout,
     updateAddress,
+    clearAddress,
   } = useAuth();
 
-  // Пока drawer открыт — страница под ним не скроллится; внутри drawer
-  // скролл остаётся (flex-1 overflow-y-auto).
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  // Пока drawer открыт: скролл страницы под ним заблокирован (счётчик —
+  // два лока не затирают друг друга), ESC закрывает, фокус входит в панель
+  // и возвращается на открывший элемент при закрытии.
   useEffect(() => {
     if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    lockBodyScroll();
+    panelRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current?.();
+    };
+    document.addEventListener('keydown', onKeyDown);
+
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      unlockBodyScroll();
+      previouslyFocused?.focus?.();
     };
   }, [open]);
 
@@ -52,11 +88,16 @@ export default function AuthDrawer({ open = false, onClose }: AuthDrawerProps) {
           />
 
           <motion.div
+            ref={panelRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={user ? 'Личный кабинет' : 'Вход в Айболит'}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col border-l border-stone-100"
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-white shadow-2xl flex flex-col border-l border-stone-100 outline-hidden"
           >
 
             <DrawerHeader
@@ -74,6 +115,7 @@ export default function AuthDrawer({ open = false, onClose }: AuthDrawerProps) {
                   isLoggingOut={isLoggingOut}
                   error={error}
                   onSaveAddress={updateAddress}
+                  onClearAddress={clearAddress}
                   onLogout={() => {
                     void logout();
                   }}

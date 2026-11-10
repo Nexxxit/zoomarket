@@ -45,11 +45,10 @@ export default function OrderSuccess({
   orderTotal,
   purchasedItems,
 }: OrderSuccessProps) {
-  const selectedStore = PICKUP_STORES.find(store => store.address === pickupAddress) || PICKUP_STORES[0];
+  const selectedStore = PICKUP_STORES.find(store => store.address === pickupAddress) ?? null;
 
   return (
     <motion.div
-      key="success"
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0 }}
@@ -143,7 +142,9 @@ export default function OrderSuccess({
               ) : (
                 <p className="font-semibold text-stone-800 leading-relaxed">
                   {pickupAddress}
-                  <span className="block text-[10px] text-stone-400 font-normal mt-0.5">Часы работы: {selectedStore.hours}</span>
+                  {selectedStore?.hours && (
+                    <span className="block text-[10px] text-stone-400 font-normal mt-0.5">Часы работы: {selectedStore.hours}</span>
+                  )}
                 </p>
               )}
             </div>
@@ -157,15 +158,8 @@ export default function OrderSuccess({
         </div>
 
         <div className="p-6 bg-stone-50/30 text-center text-xs font-inter text-stone-500 leading-normal">
-          {email ? (
-            <>
-              Копия чека отправлена вам на email <strong>{email}</strong>. Статус заказа продолжает отслеживаться по SMS на номер <strong>{phone}</strong>. Мы сохраняем историю вашей заботы о питомце!
-            </>
-          ) : (
-            <>
-              Копия чека и статус отслеживания курьера отправлены вам по SMS на номер <strong>{phone}</strong>. Мы сохраняем историю вашей заботы о питомце!
-            </>
-          )}
+          Демо-режим: чек на email и статус заказа по SMS не отправляются —
+          уведомления появятся вместе с реальным сервером заказов.
         </div>
 
       </div>

@@ -14,11 +14,14 @@ interface RatePurchasedProps {
   purchasedItems: CartItem[];
 }
 
-const keyOf = (item: CartItem) => `${item.id}-${item.size ?? ''}`;
+const keyOf = (item: CartItem) => `${item.id}|${item.size ?? ''}`;
 
 export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
-  const { productRatings, submitProductRating } = useRatings();
+  const { submitProductRating } = useRatings();
   const [justRated, setJustRated] = React.useState<Record<string, number>>({});
+  // Готовность строки считаем по паре «товар+размер» в рамках этого заказа:
+  // глобальный productRatings[id] засчитывал бы оценку одного размера другому.
+  const [ratedRows, setRatedRows] = React.useState<Record<string, boolean>>({});
   const timersRef = React.useRef<ReturnType<typeof setTimeout>[]>([]);
 
   React.useEffect(() => {
@@ -28,7 +31,7 @@ export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
 
   const remaining = purchasedItems.filter(
     (item) =>
-      !(productRatings[item.id]?.userRating !== undefined && justRated[keyOf(item)] === undefined)
+      !(ratedRows[keyOf(item)] && justRated[keyOf(item)] === undefined)
   );
   const visible = remaining.slice(0, WINDOW_SIZE);
   const total = purchasedItems.length;
@@ -39,6 +42,7 @@ export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
   const handleRate = (item: CartItem, rating: number) => {
     const k = keyOf(item);
     if (justRated[k] !== undefined) return;
+    setRatedRows((prev) => ({ ...prev, [k]: true }));
     setJustRated((prev) => ({ ...prev, [k]: rating }));
     submitProductRating(item.id, rating);
     timersRef.current.push(

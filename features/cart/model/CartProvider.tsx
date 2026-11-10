@@ -13,7 +13,7 @@ import {
 import type { CartItem } from '@/entities/cart';
 import type { Product } from '@/entities/product';
 import { getDefaultProductSize } from '@/entities/product/model/defaultSize';
-import { PROMO_CODES } from '@/shared/config/commerce';
+import { getPromo } from '@/shared/config/commerce';
 import { findRecommendation } from './recommendations';
 import { CartActionsContext, CartDataContext, CartToastContext } from './cartContext';
 import type {
@@ -75,6 +75,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const lastToastProductIdRef = useRef<string | null>(null);
   const toastVisibleRef = useRef(false);
   const toastPausedRef = useRef(false);
+  // Зеркало toastData: реролл рекомендации при silent-добавлении читает его
+  // вне updater'а setToastData — Math.random не должен вызываться внутри
+  // апдейтера (StrictMode/ретраи делают его нечистым).
+  const toastDataRef = useRef<CartToastData | null>(toastData);
 
   // Hydration from localStorage. Сохранение выполняется только в мутациях
   // (commitCart/setCheckoutType/...), поэтому демо-корзина не «прилипает»
@@ -100,7 +104,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setPickupAddressState(storedPickup);
       }
 
-      if (storedPromo && storedPromo in PROMO_CODES) {
+      if (storedPromo && getPromo(storedPromo) !== undefined) {
         setPromoCode(storedPromo);
       }
     }, 0);
@@ -125,7 +129,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const applyPromo = useCallback((code: string) => {
     const normalized = code.trim().toUpperCase();
-    if (!(normalized in PROMO_CODES)) return;
+    if (getPromo(normalized) === undefined) return;
     setPromoCode(normalized);
     writeStorage(STORAGE_KEYS.promo, normalized);
   }, []);
@@ -146,6 +150,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     lastToastProductIdRef.current = null;
     toastVisibleRef.current = false;
     toastPausedRef.current = false;
+    toastDataRef.current = null;
     setToastData(null);
   }, []);
 
@@ -181,10 +186,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       clearToastTimer();
       lastToastProductIdRef.current = product.id;
       toastVisibleRef.current = true;
-      setToastData({
+      const nextToast: CartToastData = {
         product,
         recommendation: findRecommendation(product, excludeIds, cartProductIds),
-      });
+      };
+      toastDataRef.current = nextToast;
+      setToastData(nextToast);
       // Не стартуем таймер, пока курсор над тостом (пауза при наведении)
       if (!toastPausedRef.current) {
         scheduleToastDismiss();
@@ -215,18 +222,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (options?.silent) {
         // Синхронизируем открытый тост: не предлагать товар, который уже в корзине
-        setToastData(prev => {
-          if (!prev?.recommendation) return prev;
-          if (!nextCartProductIds.includes(prev.recommendation.id)) return prev;
-          return {
-            ...prev,
+        const current = toastDataRef.current;
+        if (current?.recommendation && nextCartProductIds.includes(current.recommendation.id)) {
+          const nextToast: CartToastData = {
+            ...current,
             recommendation: findRecommendation(
-              prev.product,
-              [prev.recommendation.id],
+              current.product,
+              [current.recommendation.id],
               nextCartProductIds,
             ),
           };
-        });
+          toastDataRef.current = nextToast;
+          setToastData(nextToast);
+        }
         return;
       }
 

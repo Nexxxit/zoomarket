@@ -76,7 +76,7 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
           whileHover={{ scale: 1.12, rotate: -2 }}
           transition={{ type: "spring", stiffness: 300, damping: 15 }}
         >
-          <ProductIcon type={product.type} alt={product.name} />
+          <ProductIcon alt={product.name} />
         </motion.div>
 
         <span className="absolute bottom-2 right-2 bg-stone-100/95 text-[10px] font-bold text-stone-600 font-inter px-2.5 py-0.5 rounded-md uppercase tracking-wider">

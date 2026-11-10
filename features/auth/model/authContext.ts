@@ -19,6 +19,8 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   /** Возвращает true, если адрес сохранён (успех `PATCH /api/user/address`). */
   updateAddress: (address: UserAddress) => Promise<boolean>;
+  /** Возвращает true при успехе `DELETE /api/user/address`. */
+  clearAddress: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

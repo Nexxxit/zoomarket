@@ -10,7 +10,6 @@ import { useHeroCarousel } from './HeroCarouselProvider';
 
 export default function HeroCarousel() {
   const router = useRouter();
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const heroTrackRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -29,17 +28,11 @@ export default function HeroCarousel() {
   const shouldReduceMotion = useReducedMotion();
 
   React.useEffect(() => {
-    return () => {
-      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-    };
-  }, []);
-
-  React.useEffect(() => {
     setHeroMounted(true);
     return () => setHeroMounted(false);
   }, [setHeroMounted]);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const el = heroTrackRef.current;
     if (!el) return;
 
@@ -59,11 +52,8 @@ export default function HeroCarousel() {
         Object.entries(currentHeroSlide.link.query).filter((v): v is [string, string] => v[1] != null),
       ).toString()}`
       : '';
+    // Компенсация скролла на смену slug живёт в useCatalogViewModel.
     router.push(`${path}${query}`, { scroll: false });
-    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-    scrollTimerRef.current = setTimeout(() => {
-      document.getElementById('large-catalog')?.scrollIntoView({ behavior: 'smooth' });
-    }, 280);
   };
 
   const handleNextSlide = () => {

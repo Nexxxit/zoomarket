@@ -59,7 +59,9 @@ export function addItemToCart(items: CartItem[], seed: CartItemSeed, size?: stri
 }
 
 export function removeItemFromCart(items: CartItem[], id: string, size?: string): CartItem[] {
-  return items.filter(item => !(item.id === id && item.size === size));
+  // size не указан → удаляем все размеры этого товара (раньше вызов без size
+  // для размерных позиций был silent no-op).
+  return items.filter(item => !(item.id === id && (size === undefined || item.size === size)));
 }
 
 export function changeItemQuantity(items: CartItem[], delta: number, id: string, size?: string): CartItem[] {

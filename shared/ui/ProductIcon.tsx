@@ -2,10 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/shared/lib/cn';
 
-export type ProductIconType = 'food' | 'toy' | 'medicine' | 'accessory';
-
 interface ProductIconProps {
-  type?: ProductIconType;
   className?: string;
   alt?: string;
 }
