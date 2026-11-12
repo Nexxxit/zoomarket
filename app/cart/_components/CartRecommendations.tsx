@@ -3,7 +3,8 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { ProductIcon } from '@/shared/ui';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { selectProductById } from '@/entities/product/model/selectors';
+import { getAllProducts } from '@/entities/product';
 import type { Product } from '@/entities/product';
 import type { CartItem } from '@/entities/cart';
 import { selectCartRecommendations } from '@/features/cart';
@@ -15,18 +16,19 @@ interface CartRecommendationsProps {
 }
 
 export default function CartRecommendations({ cart, onAdd }: CartRecommendationsProps) {
-  const recommendedProducts = (() => {
+  const recommendedProducts = React.useMemo(() => {
+    const pool = getAllProducts();
     const cartIds = cart.map((item) => item.id);
     const cartAnimals = Array.from(
       new Set(
         cart
-          .map((item) => MOCK_PRODUCTS.find((p) => p.id === item.id)?.animal)
+          .map((item) => selectProductById(item.id)?.animal)
           .filter((animal): animal is Product['animal'] => Boolean(animal))
       )
     );
 
-    return selectCartRecommendations(cartIds, cartAnimals);
-  })();
+    return selectCartRecommendations(pool, cartIds, cartAnimals);
+  }, [cart]);
 
   if (recommendedProducts.length === 0) return null;
 

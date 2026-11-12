@@ -585,5 +585,3 @@ const RAW_PRODUCTS: Product[] = [
 ];
 
 export const MOCK_PRODUCTS: Product[] = withServerDetails(RAW_PRODUCTS);
-
-export const DEMO_FAVORITE_IDS: string[] = ['1', '5'];

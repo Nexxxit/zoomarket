@@ -8,8 +8,9 @@ import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
 import { cn } from '@/shared/lib';
 import { ProductIcon } from '@/shared/ui';
-import { useCart } from '@/features/cart';
+import { useCartData, useCartActions } from '@/features/cart';
 import { useFavorites } from '@/features/favorites';
+import { cartLineKey } from '@/entities/cart';
 import { getDefaultProductSize } from '../model/defaultSize';
 import type { Product } from '../model/types';
 
@@ -20,16 +21,17 @@ interface ProductCardProps {
   className?: string;
 }
 
-export default function ProductCard({ product, backTo, className }: ProductCardProps) {
-  const { addToCart, updateQty, cart } = useCart();
-  const { toggleFavorite, isFavorite } = useFavorites();
-  const liked = isFavorite(product.id);
+function ProductCard({ product, backTo, className }: ProductCardProps) {
+  const { qtyByKey } = useCartData();
+  const { addToCart, updateQty } = useCartActions();
+  const { toggleFavorite, isFavorite, isHydrated: favoritesHydrated } = useFavorites();
+  // До гидрации хранилища показываем нейтральное состояние — без вспышки demo-лайка.
+  const liked = favoritesHydrated && isFavorite(product.id);
   const [selectedSize, setSelectedSize] = React.useState<string | undefined>(
     () => getDefaultProductSize(product)
   );
 
-  const cartItem = cart.find(item => item.id === product.id && item.size === selectedSize);
-  const currentQty = cartItem ? cartItem.quantity : 0;
+  const currentQty = qtyByKey.get(cartLineKey(product.id, selectedSize)) ?? 0;
 
   const detailUrl = backTo
     ? `${productHref(product)}?from=${encodeURIComponent(backTo)}`
@@ -184,3 +186,7 @@ export default function ProductCard({ product, backTo, className }: ProductCardP
     </div>
   );
 }
+
+// memo: сетка/списки перерисовываются на смену фильтров и навигации —
+// карточка с теми же props больше не рендерится заново.
+export default React.memo(ProductCard);

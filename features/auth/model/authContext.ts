@@ -3,18 +3,20 @@ import type { UserAddress, UserProfile } from '@/entities/user';
 import type { OrderSummary } from '@/entities/order';
 import type { AuthCredentials } from './types';
 
-export interface AuthContextValue {
+/** Сеанс: меняется редко (restore/login/logout/сохранение адреса). */
+export interface AuthSessionValue {
   user: UserProfile | null;
-  /** Идёт запрос `POST /api/auth/login`. */
-  isSubmitting: boolean;
-  /** Идёт запрос `PATCH /api/user/address`. */
-  isSavingAddress: boolean;
-  /** Идёт запрос `POST /api/auth/logout`. */
-  isLoggingOut: boolean;
-  error: string | null;
+  /** Гидрация из localStorage ещё не завершилась: dependent UI гейтится этим флагом. */
+  isHydrated: boolean;
+}
+
+/** История заказов: грузится отдельно от сеанса, подписка — только у drawer. */
+export interface AuthOrdersValue {
   orders: OrderSummary[] | null;
-  /** Идёт запрос `GET /api/user/orders`. */
-  ordersLoading: boolean;
+}
+
+/** Стабильные колбэки: не пересоздаются при входе/выходе (refs вместо deps [token]/[user]). */
+export interface AuthActionsValue {
   login: (credentials: AuthCredentials) => Promise<void>;
   logout: () => Promise<void>;
   /** Возвращает true, если адрес сохранён (успех `PATCH /api/user/address`). */
@@ -23,12 +25,59 @@ export interface AuthContextValue {
   clearAddress: () => Promise<boolean>;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+/** Статусы in-flight-запросов и ошибка: меняются часто, изолированы от дерева. */
+export interface AuthStatusValue {
+  /** Идёт запрос `POST /api/auth/login`. */
+  isSubmitting: boolean;
+  /** Идёт запрос `PATCH /api/user/address`. */
+  isSavingAddress: boolean;
+  /** Идёт запрос `POST /api/auth/logout`. */
+  isLoggingOut: boolean;
+  /** Идёт запрос `GET /api/user/orders`. */
+  ordersLoading: boolean;
+  error: string | null;
+}
 
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
+export type AuthContextValue = AuthSessionValue & AuthActionsValue & AuthStatusValue & AuthOrdersValue;
+
+export const AuthSessionContext = createContext<AuthSessionValue | undefined>(undefined);
+export const AuthActionsContext = createContext<AuthActionsValue | undefined>(undefined);
+export const AuthStatusContext = createContext<AuthStatusValue | undefined>(undefined);
+export const AuthOrdersContext = createContext<AuthOrdersValue | undefined>(undefined);
+
+export function useAuthSession(): AuthSessionValue {
+  const ctx = useContext(AuthSessionContext);
   if (ctx === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuthSession must be used within an AuthProvider');
   }
   return ctx;
+}
+
+export function useAuthOrders(): AuthOrdersValue {
+  const ctx = useContext(AuthOrdersContext);
+  if (ctx === undefined) {
+    throw new Error('useAuthOrders must be used within an AuthProvider');
+  }
+  return ctx;
+}
+
+export function useAuthActions(): AuthActionsValue {
+  const ctx = useContext(AuthActionsContext);
+  if (ctx === undefined) {
+    throw new Error('useAuthActions must be used within an AuthProvider');
+  }
+  return ctx;
+}
+
+export function useAuthStatus(): AuthStatusValue {
+  const ctx = useContext(AuthStatusContext);
+  if (ctx === undefined) {
+    throw new Error('useAuthStatus must be used within an AuthProvider');
+  }
+  return ctx;
+}
+
+/** Полный срез (все контексты). Узким потребителям — useAuthSession/useAuthActions/useAuthStatus/useAuthOrders. */
+export function useAuth(): AuthContextValue {
+  return { ...useAuthSession(), ...useAuthOrders(), ...useAuthActions(), ...useAuthStatus() };
 }

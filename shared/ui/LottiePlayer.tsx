@@ -3,6 +3,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 
+// Декоративные сцен-петли стартуют только при первом появлении во вьюпорте
+// (whileInView): off-screen анимации не жгут CPU сразу после загрузки.
+const VIEWPORT_ONCE = { once: true };
+
 type AnimationType =
   | 'sleeping-cat'
   | 'happy-tail'
@@ -28,21 +32,24 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.span
             className="absolute right-10 top-2 font-comfortaa text-orange-400 font-bold text-xs select-none"
-            animate={{ y: [-5, -20], x: [0, 5], opacity: [0, 1, 0], scale: [0.8, 1.2] }}
+            whileInView={{ y: [-5, -20], x: [0, 5], opacity: [0, 1, 0], scale: [0.8, 1.2] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
           >
             z
           </motion.span>
           <motion.span
             className="absolute right-6 top-5 font-comfortaa text-orange-500 font-bold text-lg select-none"
-            animate={{ y: [-5, -25], x: [0, -8], opacity: [0, 1, 0], scale: [0.8, 1.3] }}
+            whileInView={{ y: [-5, -25], x: [0, -8], opacity: [0, 1, 0], scale: [0.8, 1.3] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2, delay: 0.6, ease: "easeOut" }}
           >
             Z
           </motion.span>
           <motion.span
             className="absolute right-12 top-8 font-comfortaa text-orange-500 font-bold text-sm select-none"
-            animate={{ y: [-5, -18], x: [0, 10], opacity: [0, 1, 0], scale: [0.8, 1.1] }}
+            whileInView={{ y: [-5, -18], x: [0, 10], opacity: [0, 1, 0], scale: [0.8, 1.1] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2, delay: 1.2, ease: "easeOut" }}
           >
             z
@@ -53,7 +60,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             <ellipse cx="60" cy="65" rx="42" ry="11" fill="#FCE7F3" opacity="0.8" stroke="#FBCFE8" strokeWidth="1" />
 
             <motion.g
-              animate={{ scaleY: [1, 1.05, 1], y: [0, -2, 0] }}
+              whileInView={{ scaleY: [1, 1.05, 1], y: [0, -2, 0] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
             >
 
@@ -99,21 +107,24 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.span
             className="absolute left-10 top-4 text-red-400 text-lg"
-            animate={{ y: [10, -25], x: [0, -10], opacity: [0, 1, 0], scale: [0.5, 1.2] }}
+            whileInView={{ y: [10, -25], x: [0, -10], opacity: [0, 1, 0], scale: [0.5, 1.2] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 1.8, delay: 0.2 }}
           >
             ❤️
           </motion.span>
           <motion.span
             className="absolute right-10 top-2 text-orange-400 text-base"
-            animate={{ y: [10, -20], x: [0, 8], opacity: [0, 1, 0], scale: [0.5, 1.1] }}
+            whileInView={{ y: [10, -20], x: [0, 8], opacity: [0, 1, 0], scale: [0.5, 1.1] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 1.5, delay: 0.8 }}
           >
             🧡
           </motion.span>
           <motion.span
             className="absolute left-24 top-0 text-green-400 text-sm"
-            animate={{ y: [15, -15], x: [10, -5], opacity: [0, 1, 0], scale: [0.6, 1.3] }}
+            whileInView={{ y: [15, -15], x: [10, -5], opacity: [0, 1, 0], scale: [0.6, 1.3] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2, delay: 0 }}
           >
             ✨
@@ -129,7 +140,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
             <g transform="translate(60, 48)">
               <motion.g
-                animate={{ rotate: [-30, 30, -30] }}
+                whileInView={{ rotate: [-30, 30, -30] }}
+                viewport={VIEWPORT_ONCE}
                 transition={{ repeat: Infinity, duration: 0.35, ease: "easeInOut" }}
               >
 
@@ -156,20 +168,22 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.div
             className="w-10 h-1.5 bg-stone-300 rounded-full"
-            animate={{
+            whileInView={{
               scaleX: [1, 0.4, 1.1, 1],
               opacity: [0.6, 0.15, 0.8, 0.6]
             }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
           />
 
           <motion.div
             className="absolute w-10 h-10 rounded-full bg-linear-to-tr from-orange-600 via-orange-500 to-amber-300 flex items-center justify-center border-2 border-white shadow-md cursor-pointer"
-            animate={{
+            whileInView={{
               y: [0, -32, 0],
               scaleY: [0.8, 1.1, 0.8, 0.82],
               scaleX: [1.2, 0.9, 1.2, 1.1]
             }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
           >
 
@@ -198,7 +212,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
               fill="none"
               stroke="#22C55E"
               strokeWidth="1.5"
-              animate={{ r: [2, 28], opacity: [1, 0] }}
+              whileInView={{ r: [2, 28], opacity: [1, 0] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut" }}
             />
             <motion.circle
@@ -208,14 +223,16 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
               fill="none"
               stroke="#4ADE80"
               strokeWidth="1"
-              animate={{ r: [2, 18], opacity: [1, 0] }}
+              whileInView={{ r: [2, 18], opacity: [1, 0] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 1.6, delay: 0.8, ease: "easeOut" }}
             />
 
             <ellipse cx="50" cy="75" rx="30" ry="4" fill="#F0FDF4" stroke="#DCFCE7" strokeWidth="1" />
 
             <motion.g
-              animate={{ y: [0, 48, 0] }}
+              whileInView={{ y: [0, 48, 0] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 1.6, ease: "easeIn" }}
             >
 
@@ -240,12 +257,14 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
         <motion.div
           className="absolute left-8 top-8 w-16 h-5 bg-white rounded-full opacity-60"
-          animate={{ x: [-80, 240] }}
+          whileInView={{ x: [-80, 240] }}
+          viewport={VIEWPORT_ONCE}
           transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
         />
         <motion.div
           className="absolute right-4 top-14 w-10 h-3 bg-white rounded-full opacity-40"
-          animate={{ x: [-200, 120] }}
+          whileInView={{ x: [-200, 120] }}
+          viewport={VIEWPORT_ONCE}
           transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
         />
 
@@ -254,7 +273,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
           <div className="absolute bottom-5 left-0 right-0 h-1 bg-stone-200 overflow-hidden">
             <motion.div
               className="w-[200%] h-full flex"
-              animate={{ x: [0, -100] }}
+              whileInView={{ x: [0, -100] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
             >
               <div className="w-1/2 flex justify-around">
@@ -272,7 +292,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.div
             className="absolute left-10 bottom-6 w-44 h-24"
-            animate={{ y: [0, -3, 0] }}
+            whileInView={{ y: [0, -3, 0] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 0.4, ease: "linear" }}
           >
             <svg viewBox="0 0 100 60" className="w-full h-full">
@@ -294,7 +315,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
                 <g transform="translate(4.5, 21.5)">
                   <motion.g
-                    animate={{ rotate: [-15, 15, -15] }}
+                    whileInView={{ rotate: [-15, 15, -15] }}
+                    viewport={VIEWPORT_ONCE}
                     transition={{ repeat: Infinity, duration: 0.15, ease: "easeInOut" }}
                   >
 
@@ -314,7 +336,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
                 <motion.path
                   d="M2,2 C-2,1 -4,6 -3,11 C-2,14 1,14 1,10 C1,7 4,4 2,2"
                   fill="#78350F"
-                  animate={{ rotate: [-5, 8, -5], y: [0, -1, 0] }}
+                  whileInView={{ rotate: [-5, 8, -5], y: [0, -1, 0] }}
+                  viewport={VIEWPORT_ONCE}
                   transition={{ repeat: Infinity, duration: 0.35, ease: "easeInOut" }}
                 />
 
@@ -331,7 +354,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
                 <motion.path
                   d="M12.5,10 Q14,13.5 15,10 Z"
                   fill="#F43F5E"
-                  animate={{ scaleY: [1, 1.4, 1] }}
+                  whileInView={{ scaleY: [1, 1.4, 1] }}
+                  viewport={VIEWPORT_ONCE}
                   transition={{ repeat: Infinity, duration: 0.5, ease: "easeInOut" }}
                 />
               </g>
@@ -369,24 +393,28 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.div
             className="absolute rounded-full bg-amber-400 w-3 h-3"
-            animate={{ y: [0, -60, -100], x: [0, 40, 20], opacity: [0, 1, 0], scale: [0.5, 1.2, 0.3] }}
+            whileInView={{ y: [0, -60, -100], x: [0, 40, 20], opacity: [0, 1, 0], scale: [0.5, 1.2, 0.3] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 3, delay: 0 }}
           />
           <motion.div
             className="absolute rounded-full bg-orange-400 w-2.5 h-2.5"
-            animate={{ y: [20, -50, -80], x: [0, -30, -50], opacity: [0, 1, 0], scale: [0.4, 1.1, 0.4] }}
+            whileInView={{ y: [20, -50, -80], x: [0, -30, -50], opacity: [0, 1, 0], scale: [0.4, 1.1, 0.4] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2.5, delay: 0.5 }}
           />
           <motion.div
             className="absolute rounded-full bg-green-400 w-2 h-2"
-            animate={{ y: [10, -70, -90], x: [10, 50, 70], opacity: [0, 1, 0], scale: [0.6, 1.3, 0.5] }}
+            whileInView={{ y: [10, -70, -90], x: [10, 50, 70], opacity: [0, 1, 0], scale: [0.6, 1.3, 0.5] }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 2.8, delay: 1.2 }}
           />
 
           <motion.svg
             viewBox="0 0 100 100"
             className="absolute inset-0 w-full h-full"
-            animate={{ rotate: 360 }}
+            whileInView={{ rotate: 360 }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
           >
 
@@ -412,10 +440,11 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
           <motion.div
             className="relative w-36 h-36 flex items-center justify-center"
-            animate={{
+            whileInView={{
               scale: [1, 1.05, 0.98, 1.03, 1],
               rotate: [0, -3, 3, -1, 0]
             }}
+            viewport={VIEWPORT_ONCE}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
           >
             <svg viewBox="0 0 120 120" className="w-full h-full">
@@ -423,7 +452,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
               <motion.path
                 d="M60,10 L70,40 L100,50 L70,60 L60,90 L50,60 L20,50 L50,40 Z"
                 fill="#FEF3C7"
-                animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.5, 0.8, 0.5] }}
+                whileInView={{ scale: [0.9, 1.1, 0.9], opacity: [0.5, 0.8, 0.5] }}
+                viewport={VIEWPORT_ONCE}
                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
               />
 
@@ -453,11 +483,12 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
           {[0, 1, 2, 3, 4].map((index) => (
             <motion.div
               key={index}
-              animate={{
+              whileInView={{
                 y: [0, -8, 0],
                 opacity: [0.3, 0.8, 0.3],
                 scale: [0.95, 1.05, 0.95]
               }}
+              viewport={VIEWPORT_ONCE}
               transition={{
                 repeat: Infinity,
                 duration: 2,
@@ -492,7 +523,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
               <g transform="translate(56, 48)">
                 <motion.g
-                  animate={{ rotate: [-6, 12, -6] }}
+                  whileInView={{ rotate: [-6, 12, -6] }}
+                  viewport={VIEWPORT_ONCE}
                   transition={{ repeat: Infinity, duration: 1.1, ease: "easeInOut" }}
                 >
                   <path
@@ -539,7 +571,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
 
               <g transform="translate(108, 52)">
                 <motion.g
-                  animate={{ rotate: [-30, 15, 15, -30] }}
+                  whileInView={{ rotate: [-30, 15, 15, -30] }}
+                  viewport={VIEWPORT_ONCE}
                   transition={{ repeat: Infinity, duration: 1.2, times: [0, 0.3, 0.45, 1], ease: "easeInOut" }}
                 >
 
@@ -574,11 +607,12 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             </g>
 
             <motion.g
-              animate={{
+              whileInView={{
                 x: [180, 180, 222, 180],
                 y: [68, 68, 62, 68],
                 rotate: [0, 0, 360, 0]
               }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 1.2, times: [0, 0.3, 0.5, 1], ease: "easeInOut" }}
             >
 
@@ -589,7 +623,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             </motion.g>
 
             <motion.g
-              animate={{ x: [265, 275, 265], y: [69, 71, 69] }}
+              whileInView={{ x: [265, 275, 265], y: [69, 71, 69] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
             >
               <ellipse cx="0" cy="0" rx="6" ry="4" fill="#64748B" />
@@ -599,7 +634,8 @@ export default function LottiePlayer({ type, className = '', width = '100%', hei
             </motion.g>
 
             <motion.g
-              animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.4, 0.9, 0.4] }}
+              whileInView={{ scale: [0.8, 1.2, 0.8], opacity: [0.4, 0.9, 0.4] }}
+              viewport={VIEWPORT_ONCE}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
             >
               <text x="190" y="25" className="text-sm">🌟</text>

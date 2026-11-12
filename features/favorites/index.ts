@@ -1,4 +1,12 @@
 export { FavoritesProvider } from './model/FavoritesProvider';
-export { useFavorites } from './model/favoritesContext';
-export type { FavoritesContextValue } from './model/favoritesContext';
+export {
+  useFavorites,
+  useFavoritesData,
+  useFavoritesActions,
+} from './model/favoritesContext';
+export type {
+  FavoritesContextValue,
+  FavoritesDataValue,
+  FavoritesActionsValue,
+} from './model/favoritesContext';
 export { toggleFavoriteId } from './model/favorites';

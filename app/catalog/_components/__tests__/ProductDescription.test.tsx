@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ProductDescription from '../ProductDescription';
-import { MOCK_PRODUCTS, getProductById } from '@/entities/product';
+import { getAllProducts, getProductById } from '@/entities/product';
 import type { Product } from '@/entities/product';
+
+const MOCK_PRODUCTS = getAllProducts();
 
 const baseProduct: Product = {
   id: 'x-1',

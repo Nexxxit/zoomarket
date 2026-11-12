@@ -9,6 +9,11 @@ export function selectCartCount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
+/** Ключ строки корзины: товар + размер (для Map-селекторов количества). */
+export function cartLineKey(id: string, size?: string): string {
+  return `${id}|${size ?? ''}`;
+}
+
 export function selectSubtotal(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }

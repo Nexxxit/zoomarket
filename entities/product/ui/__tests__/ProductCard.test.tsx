@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductCard from '../ProductCard';
 import { CartProvider } from '@/features/cart';
@@ -46,6 +46,14 @@ function renderCard(p: Product) {
 }
 
 describe('ProductCard', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
   it('renders prices via formatPrice (no raw "{n} ₽")', () => {
     const { baseElement } = renderCard(product);
     expect(baseElement.textContent).toContain(formatPrice(1234));
@@ -71,6 +79,20 @@ describe('ProductCard', () => {
     await user.click(screen.getByRole('button', { name: /Добавить .* в корзину/ }));
     expect(await screen.findByText('Товар добавлен')).toBeInTheDocument();
     expect(baseLiveText()).toContain(product.name);
+  });
+
+  it('keeps the same toast element when the lazy recommendation arrives', async () => {
+    const user = userEvent.setup();
+    renderCard(product);
+    await user.click(screen.getByRole('button', { name: /Добавить .* в корзину/ }));
+    const header = await screen.findByText('Товар добавлен');
+    const toast = header.closest('[role="region"]');
+    expect(toast).not.toBeNull();
+
+    // Рекомендация подгружается динамическим импортом: появление блока
+    // «С этим часто покупают» не должно перемонтировать тост (exit+enter).
+    await screen.findByText('С этим часто покупают:');
+    expect(header.closest('[role="region"]')).toBe(toast);
   });
 
   it('renders disabled state when out of stock', () => {

@@ -1,31 +1,45 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { Trash2 } from 'lucide-react';
 import { ProductIcon } from '@/shared/ui';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { selectProductById } from '@/entities/product/model/selectors';
 import type { CartItem } from '@/entities/cart';
+import { useCartActions } from '@/features/cart';
 import { productHref } from '@/shared/config/navigation';
 import { formatPrice } from '@/shared/lib/format';
 import QuantityStepper from './QuantityStepper';
 
-function getCartItemDetailUrl(itemId: string): string | null {
-  const product = MOCK_PRODUCTS.find((p) => p.id === itemId);
-  if (!product?.animal || !product?.subcategoryId) return null;
-
-  return productHref(product);
-}
-
 interface CartItemRowProps {
   item: CartItem;
-  onDecrease: () => void;
-  onIncrease: () => void;
-  onRemove: () => void;
 }
 
-export default function CartItemRow({ item, onDecrease, onIncrease, onRemove }: CartItemRowProps) {
-  const detailUrl = getCartItemDetailUrl(item.id);
+function CartItemRow({ item }: CartItemRowProps) {
+  // Действия корзины стабильны (CartActionsContext) → вместе с memo() и
+  // identity-preserving мутациями строки перерисовываются только при
+  // изменении собственной item-строки.
+  const { updateQty, removeFromCart } = useCartActions();
+
+  const detailUrl = React.useMemo(() => {
+    const product = selectProductById(item.id);
+    if (!product?.animal || !product?.subcategoryId) return null;
+    return productHref(product);
+  }, [item.id]);
+
+  const onDecrease = useCallback(
+    () => updateQty(item.id, -1, item.size),
+    [updateQty, item.id, item.size],
+  );
+  const onIncrease = useCallback(
+    () => updateQty(item.id, 1, item.size),
+    [updateQty, item.id, item.size],
+  );
+  const onRemove = useCallback(
+    () => removeFromCart(item.id, item.size),
+    [removeFromCart, item.id, item.size],
+  );
+
   const titleClassName =
     'text-sm sm:text-base font-bold text-stone-900 leading-tight font-comfortaa pr-2 transition-colors max-w-sm line-clamp-2';
 
@@ -91,3 +105,5 @@ export default function CartItemRow({ item, onDecrease, onIncrease, onRemove }: 
     </div>
   );
 }
+
+export default React.memo(CartItemRow);

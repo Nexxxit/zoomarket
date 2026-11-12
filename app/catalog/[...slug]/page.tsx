@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 import CatalogPage from './CatalogPage';
 import CatalogSkeleton from '../_components/CatalogSkeleton';
 import { CATALOG_STRUCTURE } from '@/entities/catalog';
-import { MOCK_PRODUCTS, getProductById } from '@/entities/product';
+import { getAllProducts, getProductById } from '@/entities/product';
+
+const MOCK_PRODUCTS = getAllProducts();
 import { parseCatalogSlug } from '@/features/catalog';
 
 interface CatalogProps {

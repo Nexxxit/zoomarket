@@ -9,6 +9,7 @@ import {
   removeItemFromCart,
   changeItemQuantity,
   parseStoredCart,
+  cartLineKey,
 } from '@/entities/cart';
 import type { CartItem } from '@/entities/cart';
 import type { Product } from '@/entities/product';
@@ -59,12 +60,29 @@ function removeStorage(key: string) {
   }
 }
 
+/**
+ * Единый data-стейз корзины: гидрация и мутации применяют частичный patch —
+ * один setState на обновление (без каскадных рендеров из нескольких сеттеров
+ * в эффекте гидрации).
+ */
+interface CartState {
+  cart: CartItem[];
+  checkoutType: typeof DEMO_CHECKOUT_TYPE;
+  pickupAddress: string;
+  promoCode: string | null;
+  isHydrated: boolean;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(INITIAL_CART_ITEMS);
-  const [checkoutType, setCheckoutTypeState] = useState(DEMO_CHECKOUT_TYPE);
-  const [pickupAddress, setPickupAddressState] = useState(DEMO_PICKUP_ADDRESS);
-  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const [state, setState] = useState<CartState>(() => ({
+    cart: INITIAL_CART_ITEMS,
+    checkoutType: DEMO_CHECKOUT_TYPE,
+    pickupAddress: DEMO_PICKUP_ADDRESS,
+    promoCode: null,
+    isHydrated: false,
+  }));
   const [toastData, setToastData] = useState<CartToastData | null>(null);
+  const { cart, checkoutType, pickupAddress, promoCode, isHydrated } = state;
 
   // Синхронное зеркало корзины: мутации считаются от него, поэтому
   // showCartToast/silent-путь видят актуальный id-лист сразу, без ожидания
@@ -80,12 +98,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // апдейтера (StrictMode/ретраи делают его нечистым).
   const toastDataRef = useRef<CartToastData | null>(toastData);
 
+  const patchState = useCallback((patch: Partial<CartState>) => {
+    setState((prev) => ({ ...prev, ...patch }));
+  }, []);
+
   // Hydration from localStorage. Сохранение выполняется только в мутациях
   // (commitCart/setCheckoutType/...), поэтому демо-корзина не «прилипает»
-  // к localStorage у новых посетителей. Отложено на тик (не синхронно в
-  // эффекте) — без каскадных рендеров; всплеш минимален (≤1 кадр).
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
+  // к localStorage у новых посетителей. Без setTimeout-тика: синхронный read
+  // при mount, постановка state — в микрозадаче (до paint, один batched-
+  // patch); dependent UI (бедж корзины) гейтится isHydrated.
+  useEffect(() => {
+    let cancelled = false;
+    const hydrate = () => {
+      if (cancelled) return;
       const storedCart = parseStoredCart(readStorage(STORAGE_KEYS.cart));
       const storedCheckoutType = readStorage(STORAGE_KEYS.checkoutType);
       const storedPickup = readStorage(STORAGE_KEYS.pickupAddress);
@@ -93,51 +118,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       if (storedCart) {
         cartRef.current = storedCart;
-        setCart(storedCart);
       }
 
+      const patch: Partial<CartState> = { isHydrated: true };
+      if (storedCart) patch.cart = storedCart;
       if (storedCheckoutType === 'delivery' || storedCheckoutType === 'pickup') {
-        setCheckoutTypeState(storedCheckoutType);
+        patch.checkoutType = storedCheckoutType;
       }
-
-      if (storedPickup) {
-        setPickupAddressState(storedPickup);
-      }
-
-      if (storedPromo && getPromo(storedPromo) !== undefined) {
-        setPromoCode(storedPromo);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+      if (storedPickup) patch.pickupAddress = storedPickup;
+      if (storedPromo && getPromo(storedPromo) !== undefined) patch.promoCode = storedPromo;
+      patchState(patch);
+    };
+    queueMicrotask(hydrate);
+    return () => {
+      cancelled = true;
+    };
+  }, [patchState]);
 
   const commitCart = useCallback((next: CartItem[]) => {
     cartRef.current = next;
-    setCart(next);
+    setState((prev) => ({ ...prev, cart: next }));
     writeStorage(STORAGE_KEYS.cart, JSON.stringify(next));
   }, []);
 
   const setCheckoutType = useCallback((type: typeof DEMO_CHECKOUT_TYPE) => {
-    setCheckoutTypeState(type);
+    patchState({ checkoutType: type });
     writeStorage(STORAGE_KEYS.checkoutType, type);
-  }, []);
+  }, [patchState]);
 
   const setPickupAddress = useCallback((address: string) => {
-    setPickupAddressState(address);
+    patchState({ pickupAddress: address });
     writeStorage(STORAGE_KEYS.pickupAddress, address);
-  }, []);
+  }, [patchState]);
 
   const applyPromo = useCallback((code: string) => {
     const normalized = code.trim().toUpperCase();
     if (getPromo(normalized) === undefined) return;
-    setPromoCode(normalized);
+    patchState({ promoCode: normalized });
     writeStorage(STORAGE_KEYS.promo, normalized);
-  }, []);
+  }, [patchState]);
 
   const clearPromo = useCallback(() => {
-    setPromoCode(null);
+    patchState({ promoCode: null });
     removeStorage(STORAGE_KEYS.promo);
-  }, []);
+  }, [patchState]);
 
   const clearToastTimer = useCallback(() => {
     if (toastTimerRef.current) {
@@ -186,16 +210,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       clearToastTimer();
       lastToastProductIdRef.current = product.id;
       toastVisibleRef.current = true;
-      const nextToast: CartToastData = {
-        product,
-        recommendation: findRecommendation(product, excludeIds, cartProductIds),
-      };
+      const nextToast: CartToastData = { product, recommendation: null };
       toastDataRef.current = nextToast;
       setToastData(nextToast);
       // Не стартуем таймер, пока курсор над тостом (пауза при наведении)
       if (!toastPausedRef.current) {
         scheduleToastDismiss();
       }
+      // Рекомендация догружается асинхронно (моки каталога не в layout-бандле).
+      void findRecommendation(product, excludeIds, cartProductIds).then((recommendation) => {
+        const current = toastDataRef.current;
+        // Тост могли закрыть/заменить, пока рекомендация грузилась.
+        if (!toastVisibleRef.current || current?.product.id !== product.id) return;
+        // Пока грузилось, товар могли добавить в корзину — не предлагаем его.
+        if (recommendation && cartRef.current.some((item) => item.id === recommendation.id)) {
+          return;
+        }
+        const next: CartToastData = { ...current, recommendation };
+        toastDataRef.current = next;
+        setToastData(next);
+      });
     },
     [clearToastTimer, scheduleToastDismiss],
   );
@@ -224,16 +258,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Синхронизируем открытый тост: не предлагать товар, который уже в корзине
         const current = toastDataRef.current;
         if (current?.recommendation && nextCartProductIds.includes(current.recommendation.id)) {
-          const nextToast: CartToastData = {
-            ...current,
-            recommendation: findRecommendation(
-              current.product,
-              [current.recommendation.id],
-              nextCartProductIds,
-            ),
-          };
-          toastDataRef.current = nextToast;
-          setToastData(nextToast);
+          const excludedId = current.recommendation.id;
+          const toastProduct = current.product;
+          void findRecommendation(toastProduct, [excludedId], nextCartProductIds).then(
+            (recommendation) => {
+              const latest = toastDataRef.current;
+              // Тост могли закрыть/заменить, пока реролл грузился.
+              if (!toastVisibleRef.current || latest?.product.id !== toastProduct.id) return;
+              // Новый реролл уже на экране — не перетирать.
+              if (latest.recommendation?.id !== excludedId) return;
+              if (recommendation && nextCartProductIds.includes(recommendation.id)) return;
+              const next: CartToastData = { ...latest, recommendation };
+              toastDataRef.current = next;
+              setToastData(next);
+            },
+          );
         }
         return;
       }
@@ -264,9 +303,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     commitCart([]);
   }, [commitCart]);
 
+  const qtyByKey = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of cart) {
+      map.set(cartLineKey(item.id, item.size), item.quantity);
+    }
+    return map;
+  }, [cart]);
+
   const dataValue = useMemo<CartDataValue>(
-    () => ({ cart, checkoutType, pickupAddress, promoCode }),
-    [cart, checkoutType, pickupAddress, promoCode],
+    () => ({ cart, checkoutType, pickupAddress, promoCode, isHydrated, qtyByKey }),
+    [cart, checkoutType, pickupAddress, promoCode, isHydrated, qtyByKey],
   );
 
   const actionsValue = useMemo<CartActionsValue>(

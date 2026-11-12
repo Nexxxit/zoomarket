@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Image from 'next/image';
 import type { Category, SubCategory } from '@/entities/catalog';
-import { getSubcategoriesSync } from '@/entities';
+import { getSubcategoriesSync } from '@/entities/catalog';
 import { getAllProducts } from '@/entities/product';
 
 interface CategorySectionProps {

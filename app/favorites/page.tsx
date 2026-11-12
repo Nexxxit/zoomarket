@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Heart } from 'lucide-react';
 import ProductCard from '@/entities/product/ui/ProductCard';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { getAllProducts } from '@/entities/product';
 import { useFavorites } from '@/features/favorites';
 
 export default function FavoritesPage() {
@@ -19,10 +19,10 @@ export default function FavoritesPage() {
     setSessionFavorites([...sessionFavorites, ...missingFromSession]);
   }
 
-  const displayFavoriteIds = Array.from(new Set([...sessionFavorites, ...favorites]));
-  const sessionProducts = MOCK_PRODUCTS.filter((product) =>
-    displayFavoriteIds.includes(product.id)
-  );
+  const sessionProducts = React.useMemo(() => {
+    const idSet = new Set([...sessionFavorites, ...favorites]);
+    return getAllProducts().filter((product) => idSet.has(product.id));
+  }, [sessionFavorites, favorites]);
 
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grow">

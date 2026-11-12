@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { productHref } from '../navigation';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { getAllProducts } from '@/entities/product';
+
+const MOCK_PRODUCTS = getAllProducts();
 
 describe('productHref — routes regression vs generateStaticParams format', () => {
   const routePaths = new Set<string>();

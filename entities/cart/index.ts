@@ -7,6 +7,7 @@ export {
   selectDeliveryCost,
   selectPromoDiscount,
   selectGrandTotal,
+  cartLineKey,
 } from './model/selectors';
 export {
   addItemToCart,

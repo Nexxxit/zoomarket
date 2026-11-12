@@ -6,11 +6,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Check, X, Plus, ShoppingCart } from 'lucide-react';
 import { ProductIcon } from '@/shared/ui';
 import { formatPrice } from '@/shared/lib/format';
-import { useCartToast, useCart } from '../model/cartContext';
+import { useCartToast, useCartActions } from '../model/cartContext';
 
 export default function CartToast() {
   const { toastData, dismissToast, pauseToastTimer, resumeToastTimer } = useCartToast();
-  const { addToCart } = useCart();
+  const { addToCart } = useCartActions();
 
   const handleAddRecommendation = () => {
     if (!toastData?.recommendation) return;
@@ -29,7 +29,9 @@ export default function CartToast() {
         <AnimatePresence mode="wait">
           {toastData && (
             <motion.div
-              key={`${toastData.product.id}-${toastData.recommendation?.id ?? 'none'}`}
+              // key — только товар: асинхронный приход рекомендации не должен
+            // перемонтировать тост (exit+enter «дёргалка»).
+            key={toastData.product.id}
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.96 }}

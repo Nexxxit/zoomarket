@@ -2,13 +2,13 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { getAllProducts, getProductById } from '@/entities';
-
-import type { Product } from '@/entities';
+import { getAllProducts, getProductById } from '@/entities/product';
+import type { Product } from '@/entities/product';
+import { cartLineKey } from '@/entities/cart';
 import { getDefaultProductSize } from '@/entities/product';
 import { CATALOG_STRUCTURE } from '@/entities/catalog';
 import type { Subcategory } from '@/entities/catalog';
-import { useCart } from '@/features/cart';
+import { useCartActions, useCartData } from '@/features/cart';
 import { useFavorites } from '@/features/favorites';
 import { useRatings, resolveProductRating } from '@/features/rating';
 import { encodeCatalogSlugSegment } from '@/shared/lib';
@@ -30,19 +30,23 @@ import {
 import type { FilterCriteria } from '@/features/catalog';
 
 const DEMO_RECENTLY_VIEWED_IDS: string[] = [];
+const EMPTY_PRODUCTS: Product[] = [];
 
 /**
  * View-model страницы каталога: вся деривация данных из slug и фильтров.
  * Компоненты только рендерят результат, повторная деривация — здесь.
- * Query-параметр `from` (глубокая кнопка «Назад») читается в leaf-компоненте
- * ProductDetailTopBar под собственным Suspense — иначе useSearchParams на
- * этом уровне выключал бы prerender всей страницы.
+ * Дорогие деривации считаются только для активного view (list vs detail):
+ * на детали не фильтруем/сортируем весь каталог, в списке не собираем
+ * «недавно просмотренные». Query-параметр `from` (глубокая кнопка «Назад»)
+ * читается в leaf-компоненте ProductDetailTopBar под собственным Suspense —
+ * иначе useSearchParams на этом уровне выключал бы prerender всей страницы.
  * TODO(интерактив): DEMO_* константы и getAllProducts/getProductById из
  * entities/product/api заменятся реальным стором каталога и API-данными.
  */
 export function useCatalogViewModel(slug: string[]) {
   const router = useRouter();
-  const { cart, addToCart, updateQty } = useCart();
+  const { qtyByKey } = useCartData();
+  const { addToCart, updateQty } = useCartActions();
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const state = React.useMemo(() => parseCatalogSlug(slug), [slug]);
@@ -66,7 +70,7 @@ export function useCatalogViewModel(slug: string[]) {
   // Пишем только контрактные ключи; чужие параметры (?from= и т.п.) сохраняем.
   // history.state передаём как есть — обнуление ломает обработку popstate у Next.
   // Зависит и от slug: при входе на детальную страницу активные фильтры
-  // дописываются в её URL, чтобы «Назад» (in-app и браузером) их сохранил.
+  // дописываются в её URL, чтобы «Назад» (in-app и браузером) их сохранили.
   React.useEffect(() => {
     const search = new URLSearchParams(window.location.search);
     for (const key of ['search', 'sort', 'min', 'max', 'brands', 'onSale']) {
@@ -136,6 +140,9 @@ export function useCatalogViewModel(slug: string[]) {
     [state, isSearchActive, activeProduct],
   );
 
+  const isListView = view === 'list';
+  const isDetailView = view === 'detail';
+
   const activeSize = React.useMemo(() => {
     if (!activeProduct) return undefined;
     if (userSelectedSize?.prodId === activeProduct.id) {
@@ -153,44 +160,53 @@ export function useCatalogViewModel(slug: string[]) {
   const liked = activeProduct ? isFavorite(activeProduct.id) : false;
 
   const activeProductQty = React.useMemo(() => {
-    const cartItem = cart.find(
-      item => activeProduct && item.id === activeProduct.id && item.size === activeSize
-    );
-    return cartItem ? cartItem.quantity : 0;
-  }, [cart, activeProduct, activeSize]);
+    if (!activeProduct) return 0;
+    return qtyByKey.get(cartLineKey(activeProduct.id, activeSize)) ?? 0;
+  }, [qtyByKey, activeProduct, activeSize]);
 
+  // Список: filter+sort всего каталога — только когда реально рендерится list-view.
   const filteredProducts = React.useMemo(
-    () => sortProducts(filterProducts(getAllProducts(), state, filters), filters.sortType),
-    [state, filters],
+    () =>
+      isListView
+        ? sortProducts(filterProducts(getAllProducts(), state, filters), filters.sortType)
+        : EMPTY_PRODUCTS,
+    [isListView, state, filters],
   );
 
   const categoryBaseProducts = React.useMemo(
-    () => selectCategoryBaseProducts(getAllProducts(), state),
-    [state],
+    () => (isListView ? selectCategoryBaseProducts(getAllProducts(), state) : EMPTY_PRODUCTS),
+    [isListView, state],
   );
 
   const activeSubcategory = React.useMemo<Subcategory | null>(() => {
-    if (!state.subcategoryId) return null;
+    if (!isListView || !state.subcategoryId) return null;
     return (
       Object.values(CATALOG_STRUCTURE)
         .flatMap(group => group.subcategories)
         .find(sub => sub.id === state.subcategoryId) ?? null
     );
-  }, [state]);
+  }, [isListView, state]);
 
   const availableBrandsInSubcategory = React.useMemo(
-    () => buildBrandFacets(getAllProducts(), state, state.slugLength === 0),
-    [state],
+    () =>
+      isListView
+        ? buildBrandFacets(getAllProducts(), state, state.slugLength === 0)
+        : [],
+    [isListView, state],
   );
 
   const onSaleCount = React.useMemo(
-    () => countOnSale(getAllProducts(), state, state.slugLength === 0),
-    [state],
+    () => (isListView ? countOnSale(getAllProducts(), state, state.slugLength === 0) : 0),
+    [isListView, state],
   );
 
+  // Detail: «недавно просмотренные» не нужны ни списку, ни home/animal.
   const recentlyViewedProducts = React.useMemo(
-    () => selectRecentlyViewed(getAllProducts(), DEMO_RECENTLY_VIEWED_IDS, activeProduct),
-    [activeProduct],
+    () =>
+      isDetailView
+        ? selectRecentlyViewed(getAllProducts(), DEMO_RECENTLY_VIEWED_IDS, activeProduct)
+        : EMPTY_PRODUCTS,
+    [isDetailView, activeProduct],
   );
 
   const catalogTitle = getCatalogTitle({

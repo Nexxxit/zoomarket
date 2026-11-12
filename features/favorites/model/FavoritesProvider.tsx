@@ -1,18 +1,28 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DEMO_FAVORITE_IDS } from '@/entities/product';
-import { FavoritesContext } from './favoritesContext';
+import { DEMO_FAVORITE_IDS } from '@/entities/product/model/demoFavorites';
+import {
+  FavoritesActionsContext,
+  FavoritesDataContext,
+} from './favoritesContext';
+import type { FavoritesActionsValue, FavoritesDataValue } from './favoritesContext';
 import { toggleFavoriteId, parseStoredFavorites } from './favorites';
 
 const STORAGE_KEY = 'aibolit_favorites';
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>(DEMO_FAVORITE_IDS);
+  const [isHydrated, setIsHydrated] = useState(false);
   const favoritesRef = useRef<string[]>(favorites);
 
+  // Синхронное чтение в useEffect (без setTimeout-тика). Тяжёлая часть —
+  // только постановка state; микрозадача выполняется до paint, поэтому
+  // dependent UI (сердечки карточек) не успевает показать demo-состояние.
   useEffect(() => {
-    const timer = setTimeout(() => {
+    let cancelled = false;
+    const hydrate = () => {
+      if (cancelled) return;
       let raw: string | null = null;
       try {
         raw = localStorage.getItem(STORAGE_KEY);
@@ -22,10 +32,14 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       const stored = parseStoredFavorites(raw);
       if (stored) {
         favoritesRef.current = stored;
-        setFavorites(stored);
       }
-    }, 0);
-    return () => clearTimeout(timer);
+      setFavorites(stored ?? DEMO_FAVORITE_IDS);
+      setIsHydrated(true);
+    };
+    queueMicrotask(hydrate);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const toggleFavorite = useCallback((productId: string) => {
@@ -39,15 +53,28 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
+
   const isFavorite = useCallback(
-    (productId: string) => favorites.includes(productId),
-    [favorites],
+    (productId: string) => favoritesSet.has(productId),
+    [favoritesSet],
   );
 
-  const value = useMemo(
-    () => ({ favorites, toggleFavorite, isFavorite }),
-    [favorites, toggleFavorite, isFavorite],
+  const dataValue = useMemo<FavoritesDataValue>(
+    () => ({ favorites, isFavorite, isHydrated }),
+    [favorites, isFavorite, isHydrated],
   );
 
-  return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
+  const actionsValue = useMemo<FavoritesActionsValue>(
+    () => ({ toggleFavorite }),
+    [toggleFavorite],
+  );
+
+  return (
+    <FavoritesDataContext.Provider value={dataValue}>
+      <FavoritesActionsContext.Provider value={actionsValue}>
+        {children}
+      </FavoritesActionsContext.Provider>
+    </FavoritesDataContext.Provider>
+  );
 }

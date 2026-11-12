@@ -15,7 +15,7 @@ import {
 import type { CartItem } from '@/entities/cart';
 import type { UserAddress } from '@/entities/user';
 import { useCart } from '@/features/cart';
-import { useAuth } from '@/features/auth';
+import { useAuthSession, useAuthActions } from '@/features/auth';
 import { OrderForm } from '@/features/order-form';
 import type { OrderFormSubmission } from '@/features/order-form';
 import OrderSuccess from './_components/OrderSuccess';
@@ -23,7 +23,9 @@ import OrderSuccess from './_components/OrderSuccess';
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart, checkoutType, pickupAddress, setPickupAddress, clearCart, clearPromo, promoCode } = useCart();
-  const { user, updateAddress } = useAuth();
+  // Узкие срезы auth-контекста: статусы запросов не перерисовывают страницу.
+  const { user } = useAuthSession();
+  const { updateAddress } = useAuthActions();
 
   const [submittedOrder, setSubmittedOrder] = React.useState<OrderFormSubmission | null>(null);
   const [purchasedItems, setPurchasedItems] = React.useState<CartItem[]>([]);

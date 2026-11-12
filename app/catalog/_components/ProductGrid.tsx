@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { Product } from '@/entities/product';
-import { ProductCard } from '@/entities/product';
+import { ProductCard } from '@/entities/product/ui';
 import EmptyState from './EmptyState';
 
 interface ProductGridProps {

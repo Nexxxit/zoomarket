@@ -1,5 +1,5 @@
 export { CartProvider } from './model/CartProvider';
-export { useCart, useCartToast } from './model/cartContext';
+export { useCart, useCartData, useCartActions, useCartToast } from './model/cartContext';
 export type {
   CartContextValue,
   CartDataValue,

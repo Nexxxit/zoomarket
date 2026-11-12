@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -75,17 +76,22 @@ function getProductCountForCategory(categoryId: string): number {
 }
 
 export default function HomeCategoryTiles() {
-  const tiles = [...ALL_MOCK_CATEGORIES]
-    .map((category) => ({
-      category,
-      productCount: getProductCountForCategory(category.id),
-      layout: HOME_TILE_LAYOUT[category.id] ?? {
-        bg: 'bg-stone-100',
-        colSpan: 'col-span-2 md:col-span-4',
-        order: 99,
-      },
-    }))
-    .sort((a, b) => a.layout.order - b.layout.order);
+  // Counts — чистая функция над статичным моком: считаем один раз, не на каждый рендер.
+  const tiles = React.useMemo(
+    () =>
+      [...ALL_MOCK_CATEGORIES]
+        .map((category) => ({
+          category,
+          productCount: getProductCountForCategory(category.id),
+          layout: HOME_TILE_LAYOUT[category.id] ?? {
+            bg: 'bg-stone-100',
+            colSpan: 'col-span-2 md:col-span-4',
+            order: 99,
+          },
+        }))
+        .sort((a, b) => a.layout.order - b.layout.order),
+    [],
+  );
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-12 gap-3 sm:gap-4">

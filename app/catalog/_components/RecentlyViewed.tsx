@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/entities/product';
-import { ProductCard } from '@/entities/product';
+import { ProductCard } from '@/entities/product/ui';
 
 interface RecentlyViewedProps {
   products: Product[];

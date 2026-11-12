@@ -13,8 +13,18 @@ import {
 } from '../api';
 import type { AuthCredentials } from './types';
 import { AuthApiError } from './types';
-import { AuthContext } from './authContext';
-import type { AuthContextValue } from './authContext';
+import {
+  AuthActionsContext,
+  AuthOrdersContext,
+  AuthSessionContext,
+  AuthStatusContext,
+} from './authContext';
+import type {
+  AuthActionsValue,
+  AuthOrdersValue,
+  AuthSessionValue,
+  AuthStatusValue,
+} from './authContext';
 
 const STORAGE_KEYS = {
   token: 'aibolit_auth_token',
@@ -53,57 +63,71 @@ function isUnauthorized(e: unknown): boolean {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orders, setOrders] = useState<OrderSummary[] | null>(null);
 
+  // Рефы-зеркала сеанса: колбэки читают актуальные token/user через refs,
+  // поэтому действия стабильны (deps []) и AuthActionsContext не «дёргает»
+  // всё дерево на login/logout — по прецеденту CartProvider.
+  const tokenRef = useRef<string | null>(null);
+  const userRef = useRef<UserProfile | null>(null);
   // Актуальный id сеанса: PATCH адреса игнорирует ответ, если пользователь
   // сменился (logout/повторный вход) во время запроса.
   const activeUserIdRef = useRef<string | null>(null);
   const addressSavesRef = useRef(0);
 
+  const commitSession = useCallback((nextToken: string | null, nextUser: UserProfile | null) => {
+    tokenRef.current = nextToken;
+    userRef.current = nextUser;
+    activeUserIdRef.current = nextUser?.id ?? null;
+    setUser(nextUser);
+  }, []);
+
   const forceLocalLogout = useCallback(() => {
-    setToken(null);
-    setUser(null);
+    commitSession(null, null);
     setOrders(null);
     removeStorage(STORAGE_KEYS.token);
     removeStorage(STORAGE_KEYS.user);
-  }, []);
+  }, [commitSession]);
 
   // Гидратация сеанса: из localStorage берём только токен, профиль (в т.ч.
   // role) — из ответа `GET /api/auth/me` (fetchCurrentUser). Нейтральный
-  // storage-пользователь больше не источник истины.
+  // storage-пользователь больше не источник истины. Эффект читает
+  // синхронно (без setTimeout-тик): до завершения restore dependent UI
+  // гейтится isHydrated — вспышки demo-состояния нет.
   useEffect(() => {
     let cancelled = false;
-    const timer = setTimeout(() => {
-      const storedToken = readStorage(STORAGE_KEYS.token);
-      if (!storedToken) return;
-      fetchCurrentUser(storedToken)
-        .then((profile) => {
-          if (cancelled) return;
-          setToken(storedToken);
-          setUser(profile);
-        })
-        .catch(() => {
-          if (cancelled) return;
-          removeStorage(STORAGE_KEYS.token);
-          removeStorage(STORAGE_KEYS.user);
-        });
-    }, 0);
+    const storedToken = readStorage(STORAGE_KEYS.token);
+    if (!storedToken) {
+      queueMicrotask(() => {
+        if (!cancelled) setIsHydrated(true);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
+    fetchCurrentUser(storedToken)
+      .then((profile) => {
+        if (cancelled) return;
+        commitSession(storedToken, profile);
+        setIsHydrated(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        removeStorage(STORAGE_KEYS.token);
+        removeStorage(STORAGE_KEYS.user);
+        setIsHydrated(true);
+      });
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
-  }, []);
+  }, [commitSession]);
 
   const userId = user?.id ?? null;
-
-  useEffect(() => {
-    activeUserIdRef.current = userId;
-  }, [userId]);
 
   // orders === null при залогиненном пользователе = «ещё не загружены»
   // (сбрасывается в login/logout), поэтому отдельный loading-стейт не нужен.
@@ -132,40 +156,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const session = await loginRequest(credentials);
       setOrders(null);
-      setToken(session.token);
-      setUser(session.user);
+      commitSession(session.token, session.user);
       writeStorage(STORAGE_KEYS.token, session.token);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не удалось войти. Попробуйте ещё раз.');
     } finally {
       setIsSubmitting(false);
     }
-  }, []);
+  }, [commitSession]);
 
   const logout = useCallback(async () => {
     setError(null);
     setIsLoggingOut(true);
     try {
-      await logoutRequest(token);
+      await logoutRequest(tokenRef.current);
     } catch (e) {
       // 401 от mock-logout = выход уже состоялся на сервере — это успех.
       if (!isUnauthorized(e)) {
         setError('Не удалось выйти. Локальный сеанс всё равно сброшен.');
       }
     } finally {
-      setToken(null);
-      setUser(null);
+      commitSession(null, null);
       setOrders(null);
       removeStorage(STORAGE_KEYS.token);
       removeStorage(STORAGE_KEYS.user);
       setIsLoggingOut(false);
     }
-  }, [token]);
+  }, [commitSession]);
 
   const updateAddress = useCallback(
     async (address: UserAddress): Promise<boolean> => {
-      if (!user) return false;
-      const requestedUserId = user.id;
+      const currentUser = userRef.current;
+      if (!currentUser) return false;
+      const requestedUserId = currentUser.id;
       addressSavesRef.current += 1;
       setIsSavingAddress(true);
       setError(null);
@@ -173,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const updated = await updateAddressRequest(requestedUserId, address);
         // Сеанс мог смениться (logout/другой вход) во время запроса.
         if (activeUserIdRef.current !== requestedUserId) return false;
-        setUser(updated);
+        commitSession(tokenRef.current, updated);
         return true;
       } catch (e) {
         if (activeUserIdRef.current === requestedUserId) {
@@ -192,19 +215,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (addressSavesRef.current === 0) setIsSavingAddress(false);
       }
     },
-    [user, forceLocalLogout],
+    [commitSession, forceLocalLogout],
   );
 
   const clearAddress = useCallback(async (): Promise<boolean> => {
-    if (!user) return false;
-    const requestedUserId = user.id;
+    const currentUser = userRef.current;
+    if (!currentUser) return false;
+    const requestedUserId = currentUser.id;
     addressSavesRef.current += 1;
     setIsSavingAddress(true);
     setError(null);
     try {
       const updated = await removeAddressRequest(requestedUserId);
       if (activeUserIdRef.current !== requestedUserId) return false;
-      setUser(updated);
+      commitSession(tokenRef.current, updated);
       return true;
     } catch (e) {
       if (activeUserIdRef.current === requestedUserId) {
@@ -222,36 +246,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       addressSavesRef.current -= 1;
       if (addressSavesRef.current === 0) setIsSavingAddress(false);
     }
-  }, [user, forceLocalLogout]);
+  }, [commitSession, forceLocalLogout]);
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      user,
-      isSubmitting,
-      isSavingAddress,
-      isLoggingOut,
-      error,
-      orders,
-      ordersLoading,
-      login,
-      logout,
-      updateAddress,
-      clearAddress,
-    }),
-    [
-      user,
-      isSubmitting,
-      isSavingAddress,
-      isLoggingOut,
-      error,
-      orders,
-      ordersLoading,
-      login,
-      logout,
-      updateAddress,
-      clearAddress,
-    ],
+  const sessionValue = useMemo<AuthSessionValue>(
+    () => ({ user, isHydrated }),
+    [user, isHydrated],
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  // Заказы — отдельный контекст: их загрузка не перерисовывает потребителей
+  // сеанса (Header и т.п.), подписан только drawer.
+  const ordersValue = useMemo<AuthOrdersValue>(() => ({ orders }), [orders]);
+
+  // commitSession/forceLocalLogout стабильны → actionsValue стабилен всегда.
+  const actionsValue = useMemo<AuthActionsValue>(
+    () => ({ login, logout, updateAddress, clearAddress }),
+    [login, logout, updateAddress, clearAddress],
+  );
+
+  const statusValue = useMemo<AuthStatusValue>(
+    () => ({ isSubmitting, isSavingAddress, isLoggingOut, ordersLoading, error }),
+    [isSubmitting, isSavingAddress, isLoggingOut, ordersLoading, error],
+  );
+
+  return (
+    <AuthSessionContext.Provider value={sessionValue}>
+      <AuthOrdersContext.Provider value={ordersValue}>
+        <AuthActionsContext.Provider value={actionsValue}>
+          <AuthStatusContext.Provider value={statusValue}>
+            {children}
+          </AuthStatusContext.Provider>
+        </AuthActionsContext.Provider>
+      </AuthOrdersContext.Provider>
+    </AuthSessionContext.Provider>
+  );
 }

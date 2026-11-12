@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, PawPrint } from 'lucide-react';
 import type { CartItem } from '@/entities/cart';
-import { StarRating, useRatings } from '@/features/rating';
+import { StarRating, useRatingsActions } from '@/features/rating';
 
 const WINDOW_SIZE = 3;
 const CELEBRATE_MS = 750;
@@ -17,7 +17,8 @@ interface RatePurchasedProps {
 const keyOf = (item: CartItem) => `${item.id}|${item.size ?? ''}`;
 
 export default function RatePurchased({ purchasedItems }: RatePurchasedProps) {
-  const { submitProductRating } = useRatings();
+  // Только действия: чужие оценки (data-контекст) не перерисовывают блок.
+  const { submitProductRating } = useRatingsActions();
   const [justRated, setJustRated] = React.useState<Record<string, number>>({});
   // Готовность строки считаем по паре «товар+размер» в рамках этого заказа:
   // глобальный productRatings[id] засчитывал бы оценку одного размера другому.

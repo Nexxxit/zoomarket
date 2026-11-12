@@ -21,7 +21,8 @@ vi.mock('next/link', () => ({
 }));
 
 vi.mock('@/features/auth', () => ({
-  useAuth: () => ({ user: mockUser, updateAddress }),
+  useAuthSession: () => ({ user: mockUser }),
+  useAuthActions: () => ({ updateAddress }),
 }));
 
 vi.mock('@/features/cart', () => ({

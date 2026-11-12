@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Heart, Sparkles } from 'lucide-react';
-import { MOCK_PRODUCTS } from '@/entities/product';
-import { ProductCard } from '@/entities/product';
+import { getAllProducts } from '@/entities/product';
+import { ProductCard } from '@/entities/product/ui';
 import { renderPromoLogo } from './promoLogo';
 
 interface PromoBannerData {
@@ -57,7 +57,8 @@ function PromoBanner({ banner }: { banner: PromoBannerData }) {
 }
 
 export default function HotDealsSection() {
-  const hotDeals = MOCK_PRODUCTS.filter(p => p.onSale);
+  // Статичный мок-каталог: фильтр считаем один раз на экземпляр, не на рендер.
+  const hotDeals = React.useMemo(() => getAllProducts().filter(p => p.onSale), []);
 
   const promoBannerLogo = renderPromoLogo(
     'w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36',

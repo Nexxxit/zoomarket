@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from '../Header';
-import { MOCK_PRODUCTS } from '@/entities/product';
+import { getAllProducts } from '@/entities/product';
 import { CartProvider } from '@/features/cart';
 import { FavoritesProvider } from '@/features/favorites';
 import { AuthProvider } from '@/features/auth';
@@ -67,7 +67,7 @@ describe('Header interactivity', () => {
 
     await user.type(input, 'ownat');
     expect(await screen.findByText(/Найдено товаров: \d+/)).toBeInTheDocument();
-    expect(screen.getByText(MOCK_PRODUCTS[0].name)).toBeInTheDocument();
+    expect(screen.getByText(getAllProducts()[0].name)).toBeInTheDocument();
 
     await user.keyboard('{Escape}');
     expect(screen.queryByText(/Найдено товаров/)).toBeNull();
